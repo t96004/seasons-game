@@ -90,25 +90,58 @@
         .shake-effect {
             animation: shake 0.3s ease-in-out;
         }
+
+        /* 音波跳動動畫 */
+        @keyframes soundWave {
+            0%, 100% { height: 6px; }
+            50% { height: 18px; }
+        }
+        .wave-bar {
+            width: 3px;
+            background-color: #b83b26;
+            border-radius: 2px;
+            display: inline-block;
+        }
+        .wave-active .wave-bar:nth-child(1) { animation: soundWave 0.5s ease-in-out infinite 0.1s; }
+        .wave-active .wave-bar:nth-child(2) { animation: soundWave 0.5s ease-in-out infinite 0.25s; }
+        .wave-active .wave-bar:nth-child(3) { animation: soundWave 0.5s ease-in-out infinite 0.4s; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 text-ink">
 
-    <!-- 頂部導覽列 (全功能防堵排版，嚴格移除下載 HTML 按鈕) -->
+    <!-- 頂部聲音狀態醒目綠色提示列 (測試聲音時彈出) -->
+    <div id="soundStatusBanner" class="hidden w-full max-w-5xl mx-auto mb-2 bg-emerald-600 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-lg border-2 border-ink shadow-md flex items-center justify-between transition-all duration-300">
+        <div class="flex items-center gap-2">
+            <span class="text-lg">🔊</span>
+            <span id="soundStatusText">正在發聲！若仍無聲請檢查瀏覽器分頁是否靜音或系統音量。</span>
+        </div>
+        <button onclick="hideSoundStatusBanner()" class="text-white hover:text-emerald-200 font-extrabold text-base">&times;</button>
+    </div>
+
+    <!-- 頂部導覽列 -->
     <header class="w-full max-w-5xl mx-auto flex flex-wrap justify-between items-center px-4 py-3 ink-card mb-3 bg-xuanDark gap-2">
         <div class="flex items-center space-x-2">
             <span class="text-2xl">🖌️</span>
             <h1 class="text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-vermilion">四時尋章：文學季節意象大挑戰</h1>
+            <!-- 動態跳動音波視覺指示器 -->
+            <div id="soundVisualizer" class="flex items-center gap-0.5 h-5 ml-1 hidden">
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+            </div>
         </div>
         <div class="flex items-center flex-wrap gap-2">
             <button id="testSoundBtn" onclick="testSound()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-gold text-white border border-ink rounded-lg ink-button flex items-center gap-1">
-                🔔 測試音效
+                🔔 點此測試聲音
             </button>
             <button id="soundToggleBtn" onclick="toggleSound()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-xuan border border-ink rounded-lg ink-button flex items-center gap-1">
                 <span id="soundIcon">🔊</span> <span id="soundText">音效: 開</span>
             </button>
+            <button id="speechToggleBtn" onclick="toggleSpeech()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-xuan border border-ink rounded-lg ink-button flex items-center gap-1">
+                <span id="speechIcon">🗣️</span> <span id="speechText">語音: 開</span>
+            </button>
             <button onclick="showRulesModal()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-bamboo text-white border border-ink rounded-lg ink-button">
-                📜 規則
+                📜 規則說明
             </button>
             <button id="homeBtn" onclick="returnToSetup()" class="hidden px-3 py-1.5 text-xs sm:text-sm font-bold bg-vermilion text-white border border-ink rounded-lg ink-button">
                 🏠 返回設定
@@ -550,7 +583,7 @@
             ["植物", "石榴", "夏", "五月榴花照眼明，枝間時見子初成。──唐˙韓愈〈題張十一旅舍三詠榴花〉", "夏"],
             ["植物", "菖蒲", "夏", "菖蒲酒美清尊共，葉裡黃鸝時一弄。──宋˙歐陽修〈漁家傲〉", "夏"],
             ["植物", "艾草", "夏", "端午臨夏至，家家插艾草。──民間諺語", "夏"],
-            ["植物", "葵花", "夏", "更無柳絮因風起，惟有葵花向日傾。──宋˙司馬光〈客中初夏〉", "夏"],
+            ["植物", "葵花", "夏", "更無綠陰因風起，惟有葵花向日傾。──宋˙司馬光〈客中初夏〉", "夏"],
             ["植物", "薔薇", "夏", "水晶簾動微風起，滿架薔薇一院香。──唐˙高駢〈山亭夏日〉", "夏"],
             ["植物", "黃梅", "夏", "黃梅時節家家雨，青草池塘處處蛙。──宋˙趙師秀〈約客〉", "夏"],
             ["植物", "翠竹", "夏", "翠竹垂秋露，青蘿拂曉風。──唐˙李白〈南亭賦〉", "夏"],
@@ -605,38 +638,137 @@
         const SUB_CATEGORIES = ["月份", "節日節氣", "風", "動物", "植物", "天象及人類活動", "不分類"];
 
         /* ----------------------------------------------------
-           2. 【強效音效引擎】(Web Audio API + PCM WAV 備援)
-           嚴禁 exponentialRamp 傳 0，全域點擊自動解鎖 (Resume)
+           2. 【三層超強保證發聲引擎】
+              Layer 1: HTML5 <audio> + PCM WAV Base64 Data URI 實體池
+              Layer 2: 直連 Web Audio API (OscillatorNode -> GainNode -> Destination)
+              Layer 3: Web Speech API 語音輔助播報 (SpeechSynthesis)
         ---------------------------------------------------- */
-        class SoundEngine {
+
+        // 動態生成 16-bit 44100Hz PCM WAV Base64 Data URI 的核心函式
+        function createWavDataUri(soundType) {
+            const sampleRate = 44100;
+            let samples = [];
+
+            if (soundType === 'click') {
+                const duration = 0.08;
+                const totalSamples = Math.floor(sampleRate * duration);
+                for (let i = 0; i < totalSamples; i++) {
+                    let t = i / sampleRate;
+                    let s = (Math.sin(2 * Math.PI * 800 * t) + Math.sin(2 * Math.PI * 1200 * t)) * Math.exp(-t * 40);
+                    samples.push(s * 0.7);
+                }
+            } else if (soundType === 'tick') {
+                const duration = 0.06;
+                const totalSamples = Math.floor(sampleRate * duration);
+                for (let i = 0; i < totalSamples; i++) {
+                    let t = i / sampleRate;
+                    let s = Math.sin(2 * Math.PI * 1000 * t) * Math.exp(-t * 60);
+                    samples.push(s * 0.8);
+                }
+            } else if (soundType === 'correct') {
+                const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                freqs.forEach(f => {
+                    const noteSamples = Math.floor(sampleRate * 0.09);
+                    for (let i = 0; i < noteSamples; i++) {
+                        let t = i / sampleRate;
+                        let s = (Math.sin(2 * Math.PI * f * t) + 0.5 * Math.sin(2 * Math.PI * f * 1.5 * t)) * Math.exp(-t * 15);
+                        samples.push(s * 0.6);
+                    }
+                });
+            } else if (soundType === 'wrong') {
+                const duration = 0.35;
+                const totalSamples = Math.floor(sampleRate * duration);
+                for (let i = 0; i < totalSamples; i++) {
+                    let t = i / sampleRate;
+                    let freq = 220 - t * 200;
+                    let s = (Math.sin(2 * Math.PI * freq * t) + (t % 0.01 > 0.005 ? 0.3 : -0.3)) * Math.exp(-t * 4);
+                    samples.push(s * 0.5);
+                }
+            } else if (soundType === 'fast') {
+                const freqs = [1318.51, 1760.00]; // E6, A6
+                freqs.forEach(f => {
+                    const noteSamples = Math.floor(sampleRate * 0.12);
+                    for (let i = 0; i < noteSamples; i++) {
+                        let t = i / sampleRate;
+                        let s = Math.sin(2 * Math.PI * f * t) * Math.exp(-t * 20);
+                        samples.push(s * 0.7);
+                    }
+                });
+            } else if (soundType === 'start' || soundType === 'win') {
+                const freqs = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                freqs.forEach(f => {
+                    const noteSamples = Math.floor(sampleRate * 0.1);
+                    for (let i = 0; i < noteSamples; i++) {
+                        let t = i / sampleRate;
+                        let s = (Math.sin(2 * Math.PI * f * t) + 0.4 * Math.sin(2 * Math.PI * f * 2 * t)) * Math.exp(-t * 12);
+                        samples.push(s * 0.55);
+                    }
+                });
+            }
+
+            const numSamples = samples.length;
+            const buffer = new ArrayBuffer(44 + numSamples * 2);
+            const view = new DataView(buffer);
+
+            const writeString = (offset, str) => {
+                for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+            };
+
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + numSamples * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, numSamples * 2, true);
+
+            let offset = 44;
+            for (let i = 0; i < numSamples; i++) {
+                let s = Math.max(-1, Math.min(1, samples[i]));
+                view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+                offset += 2;
+            }
+
+            let bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+            return 'data:audio/wav;base64,' + btoa(binary);
+        }
+
+        class MasterSoundEngine {
             constructor() {
-                this.enabled = true;
-                this.ctx = null;
-                this.masterGain = null;
-                this.compressor = null;
-                this.unlocked = false;
+                this.soundEnabled = true;
+                this.speechEnabled = true;
+                this.audioCtx = null;
+                this.audioPool = {};
+                this.isUnlocked = false;
             }
 
             init() {
-                if (this.ctx) return;
+                // 初始化 Layer 1: HTML5 Audio Pool
+                const soundTypes = ['click', 'tick', 'correct', 'wrong', 'fast', 'start', 'win'];
+                soundTypes.forEach(type => {
+                    try {
+                        const dataUri = createWavDataUri(type);
+                        const audio = new Audio(dataUri);
+                        audio.volume = 1.0;
+                        this.audioPool[type] = audio;
+                    } catch (e) {
+                        console.log("Audio pool element create error", e);
+                    }
+                });
+
+                // 初始化 Layer 2: Web Audio Context (不經 CompressNode 直連)
                 try {
                     const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
                     if (AudioCtxClass) {
-                        this.ctx = new AudioCtxClass();
-                        // 建立壓縮器提升整體音量與飽滿度
-                        this.compressor = this.ctx.createDynamicsCompressor();
-                        this.compressor.threshold.setValueAtTime(-24, this.ctx.currentTime);
-                        this.compressor.knee.setValueAtTime(30, this.ctx.currentTime);
-                        this.compressor.ratio.setValueAtTime(12, this.ctx.currentTime);
-                        this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
-                        this.compressor.release.setValueAtTime(0.25, this.ctx.currentTime);
-
-                        // 主音量 (Master Gain 設為 0.85 確保聲量充足)
-                        this.masterGain = this.ctx.createGain();
-                        this.masterGain.gain.setValueAtTime(0.85, this.ctx.currentTime);
-
-                        this.compressor.connect(this.masterGain);
-                        this.masterGain.connect(this.ctx.destination);
+                        this.audioCtx = new AudioCtxClass();
                     }
                 } catch (e) {
                     console.log("Web Audio API not supported", e);
@@ -644,209 +776,190 @@
             }
 
             unlock() {
-                this.init();
-                if (this.ctx && this.ctx.state === 'suspended') {
-                    this.ctx.resume().then(() => {
-                        this.unlocked = true;
+                if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume().then(() => {
+                        this.isUnlocked = true;
                     }).catch(err => console.log(err));
-                } else if (this.ctx) {
-                    this.unlocked = true;
+                } else {
+                    this.isUnlocked = true;
                 }
             }
 
-            playTone(freq, type, duration, startGain = 0.3) {
-                if (!this.enabled) return;
-                this.unlock();
+            // 動態視覺音波效果引發
+            animateVisualizer() {
+                const vis = document.getElementById('soundVisualizer');
+                if (vis) {
+                    vis.classList.remove('hidden');
+                    vis.classList.add('wave-active');
+                    setTimeout(() => {
+                        vis.classList.remove('wave-active');
+                        vis.classList.add('hidden');
+                    }, 800);
+                }
+            }
 
-                if (!this.ctx) {
-                    this.playFallbackBeep(freq, duration);
-                    return;
+            // 播放指定音效 (同時觸發 Layer 1 + Layer 2)
+            playSound(type, freqList = []) {
+                if (!this.soundEnabled) return;
+                this.unlock();
+                this.animateVisualizer();
+
+                // 1. 第一層：HTML5 Audio cloneNode
+                if (this.audioPool[type]) {
+                    try {
+                        const a = this.audioPool[type].cloneNode();
+                        a.volume = 1.0;
+                        a.play().catch(e => console.log("Audio clone play blocked", e));
+                    } catch (e) {}
                 }
 
-                try {
-                    const now = this.ctx.currentTime;
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
+                // 2. 第二層：Web Audio API 直連合成器 (OscillatorNode -> GainNode -> Destination)
+                if (this.audioCtx) {
+                    try {
+                        const now = this.audioCtx.currentTime;
+                        if (type === 'click') {
+                            this.playSynthTone(700, 0.08, 'triangle', 0.6);
+                        } else if (type === 'tick') {
+                            this.playSynthTone(1000, 0.06, 'sine', 0.7);
+                        } else if (type === 'correct') {
+                            const notes = [523.25, 659.25, 783.99, 1046.50];
+                            notes.forEach((freq, idx) => {
+                                setTimeout(() => {
+                                    this.playDualSynth(freq, freq * 1.5, 0.18, 0.5);
+                                }, idx * 60);
+                            });
+                        } else if (type === 'wrong') {
+                            this.playDualSynth(220, 164.81, 0.35, 0.6, 'sawtooth');
+                        } else if (type === 'fast') {
+                            this.playSynthTone(1318.51, 0.12, 'sine', 0.6);
+                            setTimeout(() => this.playSynthTone(1760.00, 0.18, 'sine', 0.6), 80);
+                        } else if (type === 'win' || type === 'start') {
+                            const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                            notes.forEach((freq, idx) => {
+                                setTimeout(() => {
+                                    this.playDualSynth(freq, freq * 1.25, 0.3, 0.5);
+                                }, idx * 80);
+                            });
+                        }
+                    } catch (e) {
+                        console.log("Web Audio synth play error", e);
+                    }
+                }
+            }
 
-                    osc.type = type;
+            playSynthTone(freq, duration, waveType = 'sine', gainPeak = 0.6) {
+                if (!this.audioCtx) return;
+                try {
+                    const now = this.audioCtx.currentTime;
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+
+                    osc.type = waveType;
                     osc.frequency.setValueAtTime(freq, now);
 
-                    gain.gain.setValueAtTime(startGain, now);
-                    // ⚠️ 關鍵保護：嚴禁 exponentialRamp 至 0！最小必須使用 0.001
+                    gain.gain.setValueAtTime(gainPeak, now);
+                    // ⚠️ 防護：嚴禁 exponentialRamp 至 0，最低使用 0.001
                     gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
                     osc.connect(gain);
-                    gain.connect(this.compressor || this.ctx.destination);
+                    gain.connect(this.audioCtx.destination);
 
                     osc.start(now);
                     osc.stop(now + duration);
-                } catch (e) {
-                    console.log("Play tone error", e);
-                    this.playFallbackBeep(freq, duration);
-                }
+                } catch (e) {}
             }
 
-            // 雙音頻疊加 (古風木魚/笛音)
-            playDualTone(freq1, freq2, type1, type2, duration, gainVal = 0.35) {
-                if (!this.enabled) return;
-                this.unlock();
-                if (!this.ctx) {
-                    this.playFallbackBeep(freq1, duration);
-                    return;
-                }
+            playDualSynth(freq1, freq2, duration, gainPeak = 0.5, waveType1 = 'sine') {
+                if (!this.audioCtx) return;
                 try {
-                    const now = this.ctx.currentTime;
-                    const osc1 = this.ctx.createOscillator();
-                    const osc2 = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
+                    const now = this.audioCtx.currentTime;
+                    const osc1 = this.audioCtx.createOscillator();
+                    const osc2 = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
 
-                    osc1.type = type1;
-                    osc2.type = type2;
+                    osc1.type = waveType1;
+                    osc2.type = 'triangle';
                     osc1.frequency.setValueAtTime(freq1, now);
                     osc2.frequency.setValueAtTime(freq2, now);
 
-                    gain.gain.setValueAtTime(gainVal, now);
+                    gain.gain.setValueAtTime(gainPeak, now);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
                     osc1.connect(gain);
                     osc2.connect(gain);
-                    gain.connect(this.compressor || this.ctx.destination);
+                    gain.connect(this.audioCtx.destination);
 
                     osc1.start(now);
                     osc2.start(now);
                     osc1.stop(now + duration);
                     osc2.stop(now + duration);
-                } catch (e) {
-                    this.playFallbackBeep(freq1, duration);
-                }
+                } catch (e) {}
             }
 
-            // 1. 木魚/琴音點擊音效
-            click() {
-                this.playDualTone(600, 1200, 'sine', 'triangle', 0.06, 0.4);
-            }
-
-            // 2. 開場竹笛/古箏琶音
-            gameStart() {
-                if (!this.enabled) return;
-                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-                notes.forEach((freq, idx) => {
-                    setTimeout(() => {
-                        this.playTone(freq, 'sine', 0.25, 0.35);
-                    }, idx * 70);
-                });
-            }
-
-            // 3. 3秒倒數滴答聲 (音高遞增)
-            tick(secondLeft) {
-                if (!this.enabled) return;
-                // 3s: 440Hz, 2s: 587Hz, 1s: 880Hz
-                const freqs = { 3: 440, 2: 587, 1: 880 };
-                const freq = freqs[secondLeft] || 500;
-                this.playTone(freq, 'triangle', 0.08, 0.4);
-            }
-
-            // 4. 正確音效 (五聲琶音 + 連擊升調)
-            correct(streak = 0) {
-                if (!this.enabled) return;
-                const baseFreqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-                const pitchShift = Math.min(streak * 20, 200); // 隨連擊微幅提升音高
-                baseFreqs.forEach((freq, i) => {
-                    setTimeout(() => {
-                        this.playDualTone(freq + pitchShift, (freq + pitchShift) * 1.5, 'sine', 'triangle', 0.2, 0.35);
-                    }, i * 60);
-                });
-            }
-
-            // 5. 錯誤 / 逾時音效 (雙低音下墜 Sawtooth + Triangle)
-            wrong() {
-                if (!this.enabled) return;
-                this.playDualTone(220, 164.81, 'sawtooth', 'triangle', 0.35, 0.45);
-            }
-
-            // 6. 兩人對戰快手獎勵音效 (+3分)
-            speedBonus() {
-                if (!this.enabled) return;
-                this.playTone(1318.51, 'sine', 0.15, 0.4); // E6 鈴鐺音
-                setTimeout(() => {
-                    this.playTone(1760.00, 'sine', 0.25, 0.4); // A6
-                }, 80);
-            }
-
-            // 7. 結算勝利華麗音效
-            fanfare() {
-                if (!this.enabled) return;
-                const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
-                notes.forEach((freq, idx) => {
-                    setTimeout(() => {
-                        this.playDualTone(freq, freq * 1.25, 'triangle', 'sine', 0.4, 0.35);
-                    }, idx * 90);
-                });
-            }
-
-            // PCM Base64 WAV 純軟體動態備援
-            playFallbackBeep(freq, duration) {
+            // Layer 3: Web Speech API 語音輔助
+            speak(text) {
+                if (!this.speechEnabled || !('speechSynthesis' in window)) return;
                 try {
-                    const sampleRate = 8000;
-                    const numSamples = Math.floor(sampleRate * duration);
-                    const wavBytes = 44 + numSamples;
-                    const buffer = new Uint8Array(wavBytes);
-                    
-                    const writeString = (offset, str) => {
-                        for (let i = 0; i < str.length; i++) buffer[offset + i] = str.charCodeAt(i);
-                    };
-                    const writeUint32 = (offset, val) => {
-                        buffer[offset] = val & 0xff; buffer[offset+1] = (val>>8)&0xff;
-                        buffer[offset+2] = (val>>16)&0xff; buffer[offset+3] = (val>>24)&0xff;
-                    };
-                    const writeUint16 = (offset, val) => {
-                        buffer[offset] = val & 0xff; buffer[offset+1] = (val>>8)&0xff;
-                    };
-
-                    writeString(0, 'RIFF'); writeUint32(4, 36 + numSamples); writeString(8, 'WAVE');
-                    writeString(12, 'fmt '); writeUint32(16, 16); writeUint16(20, 1); writeUint16(22, 1);
-                    writeUint32(24, sampleRate); writeUint32(28, sampleRate); writeUint16(32, 1); writeUint16(34, 8);
-                    writeString(36, 'data'); writeUint32(40, numSamples);
-
-                    for (let i = 0; i < numSamples; i++) {
-                        const t = i / sampleRate;
-                        const sample = Math.sin(2 * Math.PI * freq * t);
-                        const volume = Math.max(0, 1 - (i / numSamples));
-                        buffer[44 + i] = Math.floor((sample * volume * 0.4 + 1) * 127.5);
-                    }
-
-                    let binary = '';
-                    for (let i = 0; i < buffer.length; i++) binary += String.fromCharCode(buffer[i]);
-                    const base64 = btoa(binary);
-                    const snd = new Audio('data:audio/wav;base64,' + base64);
-                    snd.play().catch(e => console.log("Fallback failed", e));
-                } catch(e) {}
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'zh-TW';
+                    utterance.rate = 1.25;
+                    utterance.volume = 1.0;
+                    window.speechSynthesis.speak(utterance);
+                } catch (e) {
+                    console.log("Speech synthesis error", e);
+                }
             }
         }
 
-        const soundEngine = new SoundEngine();
+        const soundEngine = new MasterSoundEngine();
 
-        // 全域防阻 Autoplay，使用者只要觸摸/點擊畫面任何位置立即解鎖 AudioContext
+        // 頁面動態監聽，觸碰任何位置立刻啟動解鎖音效 Context
         ['pointerdown', 'touchstart', 'mousedown', 'click'].forEach(evtType => {
             window.addEventListener(evtType, () => soundEngine.unlock(), { once: false, passive: true });
         });
 
         function toggleSound() {
-            soundEngine.enabled = !soundEngine.enabled;
-            document.getElementById('soundIcon').innerText = soundEngine.enabled ? '🔊' : '🔇';
-            document.getElementById('soundText').innerText = soundEngine.enabled ? '音效: 開' : '音效: 關';
-            if (soundEngine.enabled) {
-                soundEngine.click();
+            soundEngine.soundEnabled = !soundEngine.soundEnabled;
+            document.getElementById('soundIcon').innerText = soundEngine.soundEnabled ? '🔊' : '🔇';
+            document.getElementById('soundText').innerText = soundEngine.soundEnabled ? '音效: 開' : '音效: 關';
+            if (soundEngine.soundEnabled) {
+                soundEngine.playSound('click');
                 showToast("音效已開啟");
             } else {
                 showToast("音效已靜音");
             }
         }
 
+        function toggleSpeech() {
+            soundEngine.speechEnabled = !soundEngine.speechEnabled;
+            document.getElementById('speechIcon').innerText = soundEngine.speechEnabled ? '🗣️' : '😶';
+            document.getElementById('speechText').innerText = soundEngine.speechEnabled ? '語音: 開' : '語音: 關';
+            if (soundEngine.speechEnabled) {
+                soundEngine.speak("語音已開啟");
+                showToast("語音播報已開啟");
+            } else {
+                window.speechSynthesis.cancel();
+                showToast("語音播報已關閉");
+            }
+        }
+
         function testSound() {
             soundEngine.unlock();
-            soundEngine.correct(2);
-            showToast("🔊 正播放測試和弦！");
+            soundEngine.playSound('correct');
+            soundEngine.speak("音效正常，準備挑戰！");
+            
+            const banner = document.getElementById('soundStatusBanner');
+            banner.classList.remove('hidden');
+            
+            showToast("🔊 正在發聲測試！");
+            setTimeout(() => {
+                hideSoundStatusBanner();
+            }, 5000);
+        }
+
+        function hideSoundStatusBanner() {
+            document.getElementById('soundStatusBanner').classList.add('hidden');
         }
 
         function showToast(msg) {
@@ -857,7 +970,7 @@
             setTimeout(() => {
                 toast.classList.remove('opacity-100');
                 toast.classList.add('opacity-0');
-            }, 1500);
+            }, 1800);
         }
 
         /* ----------------------------------------------------
@@ -902,6 +1015,7 @@
            4. 頁面初始化與設定選項綁定
         ---------------------------------------------------- */
         window.onload = function() {
+            soundEngine.init();
             renderSubCatButtons();
             selectGameMode('single');
             selectMainCategory('月份');
@@ -922,7 +1036,7 @@
         }
 
         function selectGameMode(mode) {
-            soundEngine.click();
+            soundEngine.playSound('click');
             gameMode = mode;
             const singleBtn = document.getElementById('modeSingleBtn');
             const dualBtn = document.getElementById('modeDualBtn');
@@ -938,7 +1052,7 @@
         }
 
         function selectMainCategory(cat) {
-            soundEngine.click();
+            soundEngine.playSound('click');
             mainCategory = cat;
             const monthBtn = document.getElementById('catMonthBtn');
             const seasonBtn = document.getElementById('catSeasonBtn');
@@ -954,13 +1068,13 @@
         }
 
         function selectSubCategory(sub) {
-            soundEngine.click();
+            soundEngine.playSound('click');
             subCategory = sub;
             renderSubCatButtons();
         }
 
         function selectTimeLimit(seconds) {
-            soundEngine.click();
+            soundEngine.playSound('click');
             timeLimit = seconds;
             [60, 180, 300].forEach(s => {
                 const btn = document.getElementById(`time${s}Btn`);
@@ -1018,7 +1132,7 @@
            6. 遊戲流程控制
         ---------------------------------------------------- */
         function startGame() {
-            soundEngine.gameStart();
+            soundEngine.playSound('start');
             initQuestionPool();
 
             if (questionPool.length === 0) {
@@ -1065,7 +1179,7 @@
         }
 
         function returnToSetup() {
-            soundEngine.click();
+            soundEngine.playSound('click');
             clearPhaseTimers();
             if (globalTimerInterval) clearInterval(globalTimerInterval);
 
@@ -1077,7 +1191,8 @@
         }
 
         function endGame() {
-            soundEngine.fanfare();
+            soundEngine.playSound('win');
+            soundEngine.speak("挑戰結束！");
             clearPhaseTimers();
             if (globalTimerInterval) clearInterval(globalTimerInterval);
 
@@ -1119,12 +1234,12 @@
             resetTimerBar(barId);
 
             phaseSecondsLeft = 3;
-            soundEngine.tick(phaseSecondsLeft); // 3s 滴聲
+            soundEngine.playSound('tick'); // 3s 滴聲
 
             tickInterval = setInterval(() => {
                 phaseSecondsLeft--;
                 if (phaseSecondsLeft > 0) {
-                    soundEngine.tick(phaseSecondsLeft); // 2s, 1s 滴聲
+                    soundEngine.playSound('tick'); // 2s, 1s 滴聲
                 }
             }, 1000);
 
@@ -1192,11 +1307,13 @@
 
             if (isCorrect) {
                 singleStreak++;
-                soundEngine.correct(singleStreak);
+                soundEngine.playSound('correct');
+                soundEngine.speak("答對了");
                 pointDelta = singleStreak;
                 singleScore += pointDelta;
             } else {
-                soundEngine.wrong();
+                soundEngine.playSound('wrong');
+                soundEngine.speak("答錯了");
                 singleStreak = (singleStreak <= 0) ? singleStreak - 1 : -1;
                 pointDelta = singleStreak;
                 singleScore += pointDelta;
@@ -1210,7 +1327,8 @@
 
         function handleSingleTimeout() {
             disableSingleOptions();
-            soundEngine.wrong();
+            soundEngine.playSound('wrong');
+            soundEngine.speak("時間到");
 
             singleStreak = (singleStreak <= 0) ? singleStreak - 1 : -1;
             const pointDelta = singleStreak;
@@ -1272,7 +1390,7 @@
         }
 
         function nextSingleQuestion() {
-            soundEngine.click();
+            soundEngine.playSound('click');
             if (remainingTime > 0) {
                 startSingleQuestion();
             }
@@ -1322,7 +1440,7 @@
         }
 
         function handleDualAnswer(team, selectedIdx) {
-            soundEngine.click();
+            soundEngine.playSound('click');
             const now = Date.now();
             if (team === 'red' && !redAnswered) {
                 redAnswered = true;
@@ -1388,13 +1506,16 @@
             }
             whiteScore += whitePoints;
 
-            // 播放播放適當音效
+            // 播放適當音效與語音
             if (redSpeedBonus || whiteSpeedBonus) {
-                soundEngine.speedBonus();
+                soundEngine.playSound('fast');
+                soundEngine.speak("快手答對");
             } else if (redCorrect || whiteCorrect) {
-                soundEngine.correct(Math.max(redStreak, whiteStreak));
+                soundEngine.playSound('correct');
+                soundEngine.speak("答對了");
             } else {
-                soundEngine.wrong();
+                soundEngine.playSound('wrong');
+                soundEngine.speak("答錯了");
             }
 
             document.getElementById('redScore').innerText = redScore;
@@ -1452,7 +1573,7 @@
         }
 
         function nextDualStep() {
-            soundEngine.click();
+            soundEngine.playSound('click');
             if (remainingTime <= 0) return;
 
             if (currentPhase === 1) {
@@ -1474,12 +1595,12 @@
         }
 
         function showRulesModal() {
-            soundEngine.click();
+            soundEngine.playSound('click');
             document.getElementById('rulesModal').classList.remove('hidden');
         }
 
         function hideRulesModal() {
-            soundEngine.click();
+            soundEngine.playSound('click');
             document.getElementById('rulesModal').classList.add('hidden');
         }
     </script>
