@@ -2,1486 +2,1298 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>四時尋章：文學季節意象大挑戰</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: 經典楷體與宋體 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
-    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        ink: {
-                            50: '#f6f7f6',
-                            100: '#e3e5e3',
-                            700: '#2c3531',
-                            800: '#1e2421',
-                            900: '#111513',
-                        },
-                        vermilion: {
-                            DEFAULT: '#c53030',
-                            dark: '#9b2c2c',
-                            light: '#feb2b2'
-                        },
-                        bamboo: {
-                            DEFAULT: '#2f855a',
-                            dark: '#22543d',
-                            light: '#9ae6b4'
-                        },
-                        rice: '#fdfbf7',
-                        riceDark: '#f4efe6'
+                        xuan: '#fcf8f2',
+                        xuanDark: '#f4ebd9',
+                        ink: '#2c2621',
+                        vermilion: '#b83b26',
+                        gold: '#d99b26',
+                        bamboo: '#4a6b53',
+                        paperBorder: '#e2d5c3'
                     },
                     fontFamily: {
-                        serif: ['"Noto Serif TC"', 'serif'],
-                        kai: ['"LXGW WenKai TC"', '"Kaiti SC"', 'BiauKai', 'serif']
+                        serif: ['Noto Serif TC', 'Kaiti', 'STKaiti', '楷體', 'serif']
                     }
                 }
             }
         }
     </script>
     <style>
-        /* 古典背景與防止拖曳 */
-        html, body {
-            touch-action: manipulation;
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Serif TC', 'Kaiti', 'STKaiti', serif;
+            background-color: #fcf8f2;
+            background-image: radial-gradient(#e8dec9 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #2c2621;
             user-select: none;
             -webkit-user-select: none;
-            overflow-x: hidden;
-            font-family: 'Noto Serif TC', serif;
-            background-color: #fdfbf7;
-            background-image: radial-gradient(#e5dfd3 0.75px, transparent 0.75px);
-            background-size: 16px 16px;
         }
 
-        /* 水墨邊框卡片風格 */
-        .classical-card {
-            background-color: rgba(253, 251, 247, 0.95);
-            border: 2px solid #2c3531;
-            box-shadow: 4px 4px 0px #2c3531;
-            position: relative;
+        /* 經典水墨宣紙邊框樣式 */
+        .ink-card {
+            background: #fcf8f2;
+            border: 2px solid #2c2621;
+            box-shadow: 4px 4px 0px #2c2621;
+            border-radius: 12px;
+        }
+        
+        .ink-button {
+            transition: all 0.15s ease;
+            box-shadow: 3px 3px 0px #2c2621;
+        }
+        
+        .ink-button:hover:not(:disabled) {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px #2c2621;
         }
 
-        .classical-card::before {
-            content: '';
-            position: absolute;
-            top: 3px; left: 3px; right: 3px; bottom: 3px;
-            border: 1px solid rgba(44, 53, 49, 0.2);
-            pointer-events: none;
+        .ink-button:active:not(:disabled) {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #2c2621;
         }
 
-        .red-team-card {
-            background-color: rgba(254, 242, 242, 0.95);
-            border: 2px solid #9b2c2c;
-            box-shadow: 4px 4px 0px #9b2c2c;
-        }
-
-        .white-team-card {
-            background-color: rgba(240, 249, 255, 0.95);
-            border: 2px solid #2b6cb0;
-            box-shadow: 4px 4px 0px #2b6cb0;
-        }
-
-        /* 倒數3秒進度條動畫 */
+        /* 作答 3 秒倒數進度條 */
         @keyframes timerProgress {
             from { width: 100%; }
             to { width: 0%; }
         }
-
+        
         .timer-bar-active {
             animation: timerProgress 3s linear forwards;
         }
 
-        /* 古典印章標籤 */
-        .seal-mark {
-            display: inline-block;
-            border: 2px solid #c53030;
-            color: #c53030;
-            padding: 2px 6px;
-            font-family: 'LXGW WenKai TC', serif;
-            font-weight: bold;
-            border-radius: 4px;
-            transform: rotate(-2deg);
+        /* 隱藏滾動條 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-
-        /* 按鈕點擊效果 */
-        .btn-touch {
-            transition: all 0.1s ease;
-        }
-        .btn-touch:active {
-            transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0px currentColor !important;
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
-<body class="min-h-screen text-ink-800 flex flex-col justify-between">
+<body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 text-ink">
 
-    <!-- 頂部導覽列 -->
-    <header class="w-full bg-ink-800 text-rice px-3 py-2.5 md:px-6 flex justify-between items-center shadow-md z-30">
+    <!-- 頂部導覽列 (徹底刪除下載修正版 HTML 按鈕) -->
+    <header class="w-full max-w-5xl mx-auto flex justify-between items-center px-4 py-3 ink-card mb-3 bg-xuanDark">
         <div class="flex items-center space-x-2">
-            <span class="seal-mark text-xs border-rice text-rice bg-vermilion">古典</span>
-            <h1 class="text-base md:text-xl font-bold font-kai tracking-wider">四時尋章：文學季節意象大挑戰</h1>
+            <span class="text-2xl">🖌️</span>
+            <h1 class="text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-vermilion">四時尋章：文學季節意象大挑戰</h1>
         </div>
         <div class="flex items-center space-x-2">
-            <!-- 一鍵下載修正版原始碼按鈕 -->
-            <button onclick="downloadHTML()" title="下載單一HTML檔" class="px-2.5 py-1 bg-amber-700 hover:bg-amber-800 text-white rounded text-xs border border-amber-500 font-kai flex items-center space-x-1">
-                <span>📥 下載修正版 HTML</span>
+            <button id="soundToggleBtn" onclick="toggleSound()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-xuan border border-ink rounded-lg ink-button flex items-center gap-1">
+                <span id="soundIcon">🔊</span> <span id="soundText">音效: 開</span>
             </button>
-            <button id="soundToggleBtn" onclick="toggleSound()" class="p-1.5 bg-ink-700 hover:bg-ink-900 rounded-full text-xs flex items-center justify-center w-8 h-8 border border-gray-600">
-                🔊
+            <button onclick="showRulesModal()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-gold text-white border border-ink rounded-lg ink-button">
+                📜 規則
             </button>
-            <button onclick="showHelpModal()" class="px-2.5 py-1 bg-ink-700 hover:bg-ink-900 rounded text-xs border border-gray-600 font-kai">
-                規則說明
+            <button id="homeBtn" onclick="returnToSetup()" class="hidden px-3 py-1.5 text-xs sm:text-sm font-bold bg-vermilion text-white border border-ink rounded-lg ink-button">
+                🏠 返回設定
             </button>
         </div>
     </header>
 
-    <!-- 主內容區 -->
-    <main class="flex-grow flex items-center justify-center p-3 md:p-6">
-        
-        <!-- ==================== 1. 主選單設定介面 ==================== -->
-        <section id="setupScreen" class="w-full max-w-2xl classical-card p-5 md:p-8 rounded-lg my-auto">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl md:text-3xl font-bold font-kai text-ink-900 mb-1">四時詩情 ‧ 意象辨認</h2>
-                <p class="text-xs md:text-sm text-gray-600 font-serif">檢定詩詞典故與月令風物之關聯，體察古典文學氣象</p>
+    <!-- 主遊戲區域容器 -->
+    <main class="w-full max-w-5xl mx-auto flex-1 flex flex-col justify-center">
+
+        <!-- 1. 遊戲設定畫面 (Setup Screen) -->
+        <section id="setupScreen" class="ink-card p-4 sm:p-8 bg-xuan flex flex-col gap-6 my-auto">
+            <div class="text-center border-b-2 border-paperBorder pb-4">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-vermilion mb-2">古典詩詞意象與時序大考驗</h2>
+                <p class="text-sm sm:text-base text-gray-700">選擇遊戲模式、題目範疇與限制時間，尋詩問歲，揮毫挑戰！</p>
             </div>
 
-            <!-- 一、 模式選擇 -->
-            <div class="mb-5">
-                <label class="block text-sm font-bold mb-2 font-kai text-ink-900">一、 選擇遊戲模式</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <button id="modeSingleBtn" onclick="selectMode('single')" class="py-3 px-4 rounded border-2 border-vermilion bg-red-50 text-vermilion font-kai text-base md:text-lg font-bold btn-touch">
+            <!-- 模式選擇 -->
+            <div>
+                <label class="block text-base font-bold text-ink mb-2">1. 選擇模式：</label>
+                <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                    <button type="button" id="modeSingleBtn" onclick="selectGameMode('single')" class="p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-vermilion text-white ink-button">
                         👤 一人單人挑戰
                     </button>
-                    <button id="modeBattleBtn" onclick="selectMode('battle')" class="py-3 px-4 rounded border-2 border-ink-800 font-kai text-base md:text-lg font-bold bg-riceDark hover:bg-amber-100 btn-touch">
+                    <button type="button" id="modeDualBtn" onclick="selectGameMode('dual')" class="p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-xuanDark text-ink ink-button">
                         ⚔️ 兩人對戰競速
                     </button>
                 </div>
             </div>
 
-            <!-- 二、 時間選擇 -->
-            <div class="mb-5">
-                <label class="block text-sm font-bold mb-2 font-kai text-ink-900">二、 選擇遊戲時間</label>
-                <div class="grid grid-cols-3 gap-3">
-                    <button onclick="selectTime(60)" class="time-btn py-2 rounded border-2 border-vermilion bg-red-50 text-vermilion text-center font-kai font-bold btn-touch" data-time="60">1 分鐘</button>
-                    <button onclick="selectTime(180)" class="time-btn py-2 rounded border border-ink-700 text-center font-kai font-bold bg-white btn-touch" data-time="180">3 分鐘</button>
-                    <button onclick="selectTime(300)" class="time-btn py-2 rounded border border-ink-700 text-center font-kai font-bold bg-white btn-touch" data-time="300">5 分鐘</button>
-                </div>
-            </div>
-
-            <!-- 三、 題库大類選擇 -->
-            <div class="mb-5">
-                <label class="block text-sm font-bold mb-2 font-kai text-ink-900">三、 選擇題庫大類</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <button id="catSeasonBtn" onclick="selectCategory('season')" class="py-2.5 rounded border-2 border-vermilion bg-red-50 text-vermilion font-kai font-bold btn-touch">
+            <!-- 大題選擇 -->
+            <div>
+                <label class="block text-base font-bold text-ink mb-2">2. 選擇大題類型：</label>
+                <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                    <button type="button" id="catMonthBtn" onclick="selectMainCategory('月份')" class="p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-bamboo text-white ink-button">
+                        📅 月份題 (對應數字月份)
+                    </button>
+                    <button type="button" id="catSeasonBtn" onclick="selectMainCategory('季節')" class="p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-xuanDark text-ink ink-button">
                         🌸 季節題 (對應春夏秋冬)
                     </button>
-                    <button id="catMonthBtn" onclick="selectCategory('month')" class="py-2.5 rounded border border-ink-700 font-kai font-bold bg-white hover:bg-amber-50 btn-touch">
-                        📅 月份題 (對應1~12月)
-                    </button>
                 </div>
             </div>
 
-            <!-- 四、 季節題細項選擇（僅單人遊戲且選季節時顯示） -->
-            <div id="subCatSection" class="mb-6 bg-amber-50/70 p-3 rounded border border-amber-300">
-                <label class="block text-xs font-bold mb-2 font-kai text-ink-900">四、 選擇細項題庫（單人專屬）</label>
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 text-xs">
-                    <button onclick="selectSubCat('不分類')" class="subcat-btn py-1.5 px-2 rounded border-2 border-vermilion bg-red-50 text-vermilion font-kai font-bold" data-sub="不分類">不分類 (全題庫)</button>
-                    <button onclick="selectSubCat('月份')" class="subcat-btn py-1.5 px-2 rounded border border-ink-700 bg-white font-kai" data-sub="月份">月份名稱</button>
-                    <button onclick="selectSubCat('節日節氣')" class="subcat-btn py-1.5 px-2 rounded border border-ink-700 bg-white font-kai" data-sub="節日節氣">節日節氣</button>
-                    <button onclick="selectSubCat('風')" class="subcat-btn py-1.5 px-2 rounded border border-ink-700 bg-white font-kai" data-sub="風">四季風稱</button>
-                    <button onclick="selectSubCat('動物')" class="subcat-btn py-1.5 px-2 rounded border border-ink-700 bg-white font-kai" data-sub="動物">物候動物</button>
-                    <button onclick="selectSubCat('植物')" class="subcat-btn py-1.5 px-2 rounded border border-ink-700 bg-white font-kai" data-sub="植物">植物花卉</button>
-                    <button onclick="selectSubCat('天象及人類活動')" class="subcat-btn py-1.5 px-2 rounded border border-ink-700 bg-white font-kai" data-sub="天象及人類活動">天象與活動</button>
+            <!-- 季節小題分組 (僅在單人+季節時顯示) -->
+            <div id="subCatContainer" class="hidden">
+                <label class="block text-base font-bold text-ink mb-2">3. 選擇季節子類別：</label>
+                <div class="flex flex-wrap gap-2" id="subCatBtnGroup">
+                    <!-- JS 動態生成 -->
+                </div>
+            </div>
+
+            <!-- 時間選擇 -->
+            <div>
+                <label class="block text-base font-bold text-ink mb-2">時間長度：</label>
+                <div class="grid grid-cols-3 gap-3">
+                    <button type="button" id="time60Btn" onclick="selectTimeLimit(60)" class="p-2 sm:p-3 text-center border-2 border-ink rounded-lg font-bold bg-gold text-white ink-button">
+                        ⏱️ 1 分鐘 (60s)
+                    </button>
+                    <button type="button" id="time180Btn" onclick="selectTimeLimit(180)" class="p-2 sm:p-3 text-center border-2 border-ink rounded-lg font-bold bg-xuanDark text-ink ink-button">
+                        ⏱️ 3 分鐘 (180s)
+                    </button>
+                    <button type="button" id="time300Btn" onclick="selectTimeLimit(300)" class="p-2 sm:p-3 text-center border-2 border-ink rounded-lg font-bold bg-xuanDark text-ink ink-button">
+                        ⏱️ 5 分鐘 (300s)
+                    </button>
                 </div>
             </div>
 
             <!-- 開始遊戲按鈕 -->
-            <button onclick="startGame()" class="w-full py-3.5 bg-vermilion hover:bg-vermilion-dark text-white font-kai text-xl font-bold rounded border-2 border-ink-900 shadow-lg btn-touch">
-                開始挑戰
-            </button>
-        </section>
-
-
-        <!-- ==================== 2. 單人遊戲介面 ==================== -->
-        <section id="singleGameScreen" class="w-full max-w-2xl hidden flex-col space-y-4">
-            <!-- 頂部計時與分數資訊 -->
-            <div class="classical-card p-3 rounded flex justify-between items-center text-sm font-kai font-bold">
-                <div class="flex items-center space-x-2">
-                    <span class="text-red-700">⏳ 剩餘時間：</span>
-                    <span id="singleTimerDisplay" class="text-xl text-vermilion font-mono">01:00</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div>連對/連錯：<span id="singleStreakDisplay" class="text-amber-800">0</span></div>
-                    <div>總得分：<span id="singleScoreDisplay" class="text-xl text-bamboo font-mono">0</span></div>
-                </div>
-            </div>
-
-            <!-- 題目主卡片 -->
-            <div class="classical-card p-5 md:p-7 rounded-lg text-center flex flex-col justify-between min-h-[380px]">
-                <div>
-                    <!-- 階段標籤 -->
-                    <div class="flex justify-between items-center mb-3">
-                        <span id="singleStageTag" class="seal-mark text-xs bg-ink-800 text-rice border-ink-800">第一階段：意象辨識</span>
-                        <span id="singleCategoryTag" class="text-xs text-gray-600 font-kai"></span>
-                    </div>
-
-                    <!-- 題目內容 -->
-                    <div class="my-4">
-                        <div id="singleQuestionSub" class="text-xs text-amber-900 mb-1 font-kai">請辨識以下詞彙對應之時令：</div>
-                        <h3 id="singleQuestionText" class="text-2xl md:text-4xl font-bold font-kai text-ink-900 leading-relaxed py-2">
-                            載入中...
-                        </h3>
-                    </div>
-                </div>
-
-                <!-- 倒數計時進度條 -->
-                <div class="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden mb-3 border border-gray-400">
-                    <div id="singleTimerBar" class="bg-vermilion h-full w-full"></div>
-                </div>
-
-                <!-- 回饋說明區域 -->
-                <div id="singleFeedbackArea" class="hidden my-2 p-3 rounded bg-amber-50 border border-amber-300 text-left text-sm space-y-1">
-                    <div id="singleFeedbackTitle" class="font-bold text-base font-kai"></div>
-                    <div id="singleFeedbackExp" class="text-gray-800 font-serif leading-relaxed"></div>
-                    <div id="singleScoreChange" class="font-bold text-right text-xs"></div>
-                </div>
-
-                <!-- 二選一選項區域 -->
-                <div id="singleOptionsArea" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                    <button onclick="handleSingleAnswer(0)" id="singleOpt0" class="py-4 px-4 bg-white border-2 border-ink-800 hover:bg-amber-100 rounded text-lg font-bold font-kai btn-touch shadow">
-                        選項 A
-                    </button>
-                    <button onclick="handleSingleAnswer(1)" id="singleOpt1" class="py-4 px-4 bg-white border-2 border-ink-800 hover:bg-amber-100 rounded text-lg font-bold font-kai btn-touch shadow">
-                        選項 B
-                    </button>
-                </div>
-
-                <!-- 下一題按鈕 -->
-                <button id="singleNextBtn" onclick="nextSingleQuestion()" class="hidden w-full mt-3 py-3 bg-bamboo text-white font-kai font-bold text-lg rounded border-2 border-ink-900 hover:bg-bamboo-dark btn-touch">
-                    進入下一題 ➔
+            <div class="pt-4 border-t border-paperBorder text-center">
+                <button onclick="startGame()" class="w-full py-4 text-xl font-extrabold text-white bg-vermilion border-2 border-ink rounded-xl ink-button tracking-wider shadow-lg">
+                    🚀 開始尋章挑戰
                 </button>
             </div>
         </section>
 
-
-        <!-- ==================== 3. 兩人對戰介面 ==================== -->
-        <section id="battleGameScreen" class="w-full max-w-5xl hidden flex-col space-y-3">
-            <!-- 頂部對戰計時 -->
-            <div class="classical-card p-3 rounded flex justify-between items-center text-sm font-kai font-bold">
-                <div class="flex items-center space-x-2">
-                    <span class="text-vermilion">⚔️ 對戰倒數：</span>
-                    <span id="battleTimerDisplay" class="text-xl text-vermilion font-mono">01:00</span>
+        <!-- 2. 單人遊戲畫面 -->
+        <section id="singleGameScreen" class="hidden ink-card p-4 sm:p-6 bg-xuan flex flex-col gap-4">
+            <!-- 頂部狀態列 -->
+            <div class="flex flex-wrap justify-between items-center bg-xuanDark p-3 rounded-lg border border-ink text-sm sm:text-base font-bold">
+                <div class="flex items-center space-x-3">
+                    <span id="singleModeBadge" class="bg-bamboo text-white px-2 py-0.5 rounded text-xs">季節題 - 不分類</span>
+                    <span class="text-vermilion">倒數：<span id="singleGlobalTimer" class="text-xl font-extrabold">60</span>s</span>
                 </div>
-                <div id="battleStageTag" class="seal-mark text-xs bg-ink-800 text-rice">階段一：意象辨識</div>
-                <div class="text-xs text-gray-600 font-kai hidden sm:block">首答正確者額外 +3 分</div>
-            </div>
-
-            <!-- 中央題目卡 -->
-            <div class="classical-card p-4 text-center rounded">
-                <div id="battleQuestionSub" class="text-xs text-amber-900 font-kai mb-1">請雙方於3秒內搶答：</div>
-                <h3 id="battleQuestionText" class="text-xl md:text-3xl font-bold font-kai text-ink-900">載入中...</h3>
-                <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden mt-3 border border-gray-400">
-                    <div id="battleTimerBar" class="bg-vermilion h-full w-full"></div>
+                <div class="flex items-center space-x-4">
+                    <span>🔥 連擊：<span id="singleStreak" class="text-gold font-extrabold">0</span></span>
+                    <span>🏆 總分：<span id="singleScore" class="text-vermilion text-xl font-extrabold">0</span></span>
                 </div>
             </div>
 
-            <!-- 兩隊對決欄位 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                <!-- 紅隊欄位 (Left) -->
-                <div class="red-team-card p-4 rounded-lg flex flex-col justify-between min-h-[300px]">
-                    <div>
-                        <div class="flex justify-between items-center border-b border-red-300 pb-2 mb-3">
-                            <span class="font-bold text-red-800 font-kai text-lg">🚩 紅隊</span>
-                            <div class="text-right">
-                                <span class="text-xs text-gray-600">得分: </span>
-                                <span id="redScore" class="text-xl font-bold text-red-700 font-mono">0</span>
-                                <span id="redStreak" class="text-xs text-amber-800 ml-1"></span>
-                            </div>
+            <!-- 階段提示與 3 秒倒數進度條 -->
+            <div class="w-full bg-xuanDark rounded-full h-3 border border-ink overflow-hidden">
+                <div id="singleTimerBar" class="h-full bg-vermilion w-full"></div>
+            </div>
+
+            <div class="text-center font-bold text-gray-700">
+                <span id="singlePhaseBadge" class="inline-block bg-gold text-white px-3 py-1 rounded-full text-xs sm:text-sm">階段一：意象辨識 (3秒)</span>
+            </div>
+
+            <!-- 題目卡片 -->
+            <div class="bg-xuanDark p-4 sm:p-6 rounded-xl border-2 border-ink text-center shadow-inner flex flex-col justify-center min-h-[120px]">
+                <p class="text-xs text-gray-600 mb-1" id="singleSubGroupTag">【意象題】</p>
+                <h3 id="singleQuestionTitle" class="text-2xl sm:text-3xl font-extrabold text-ink tracking-widest">---</h3>
+            </div>
+
+            <!-- 選項按鈕區 -->
+            <div id="singleOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button onclick="handleSingleAnswer(0)" id="singleOpt0" class="p-4 border-2 border-ink rounded-xl font-bold text-lg sm:text-xl bg-xuan hover:bg-xuanDark text-ink text-left ink-button flex items-center justify-between">
+                    <span id="singleOptText0">選項 A</span>
+                </button>
+                <button onclick="handleSingleAnswer(1)" id="singleOpt1" class="p-4 border-2 border-ink rounded-xl font-bold text-lg sm:text-xl bg-xuan hover:bg-xuanDark text-ink text-left ink-button flex items-center justify-between">
+                    <span id="singleOptText1">選項 B</span>
+                </button>
+            </div>
+
+            <!-- 作答回饋與說明 -->
+            <div id="singleFeedbackBox" class="hidden p-4 rounded-xl border-2 border-ink bg-xuanDark text-sm sm:text-base flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <span id="singleFeedbackResult" class="font-extrabold text-lg">---</span>
+                    <span id="singleFeedbackPoints" class="font-bold">得分：+1</span>
+                </div>
+                <p id="singleFeedbackQuote" class="text-gray-800 italic border-l-4 border-gold pl-3 py-1">---</p>
+            </div>
+
+            <!-- 下一題控制 -->
+            <div class="text-center pt-2">
+                <button id="singleNextBtn" onclick="nextSingleQuestion()" class="hidden px-8 py-3 text-lg font-bold text-white bg-bamboo border-2 border-ink rounded-xl ink-button">
+                    下一題 ➔
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. 兩人對戰遊戲畫面 -->
+        <section id="dualGameScreen" class="hidden ink-card p-3 sm:p-5 bg-xuan flex flex-col gap-3">
+            <!-- 頂部時間與階段列 -->
+            <div class="flex justify-between items-center bg-xuanDark p-2.5 rounded-lg border border-ink text-sm font-bold">
+                <span id="dualModeBadge" class="bg-vermilion text-white px-2 py-0.5 rounded text-xs">兩人對戰 - 季節題</span>
+                <span class="text-vermilion text-lg font-extrabold">⏱️ <span id="dualGlobalTimer">60</span>s</span>
+                <span id="dualPhaseBadge" class="bg-gold text-white px-2 py-0.5 rounded text-xs">第一階段：意象辨識</span>
+            </div>
+
+            <!-- 3 秒倒數條 -->
+            <div class="w-full bg-xuanDark rounded-full h-2.5 border border-ink overflow-hidden">
+                <div id="dualTimerBar" class="h-full bg-vermilion w-full"></div>
+            </div>
+
+            <!-- 題目卡 -->
+            <div class="bg-xuanDark p-3 sm:p-4 rounded-xl border-2 border-ink text-center min-h-[90px] flex flex-col justify-center">
+                <p class="text-xs text-gray-600 mb-0.5" id="dualSubGroupTag">【競速題目】</p>
+                <h3 id="dualQuestionTitle" class="text-xl sm:text-2xl font-extrabold text-ink tracking-wider">---</h3>
+            </div>
+
+            <!-- 左右對戰兩欄 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <!-- 紅隊欄位 -->
+                <div class="p-3 rounded-xl border-2 border-vermilion bg-red-50/40 flex flex-col gap-2">
+                    <div class="flex justify-between items-center border-b border-vermilion/30 pb-1.5">
+                        <span class="font-bold text-vermilion text-base flex items-center gap-1">🔴 紅隊</span>
+                        <div class="text-xs font-bold space-x-2">
+                            <span>連擊:<span id="redStreak">0</span></span>
+                            <span class="text-sm text-vermilion font-extrabold">得分:<span id="redScore">0</span></span>
                         </div>
-                        <div id="redStatus" class="text-xs font-bold text-gray-600 mb-2 min-h-[20px] font-kai">等待作答...</div>
-                        <div id="redFeedback" class="hidden mb-3 p-2 bg-white/90 rounded border border-red-300 text-xs text-left"></div>
                     </div>
 
-                    <div id="redOpts" class="grid grid-cols-1 gap-2">
-                        <button onclick="handleBattleAnswer('red', 0)" id="redOpt0" class="py-3 px-3 bg-white border-2 border-red-800 hover:bg-red-100 rounded font-bold font-kai text-base btn-touch shadow">
-                            選項 A
+                    <!-- 紅隊選項 -->
+                    <div class="flex flex-col gap-2" id="redOptionsBox">
+                        <button onclick="handleDualAnswer('red', 0)" id="redOpt0" class="p-2.5 border border-ink rounded-lg font-bold text-sm sm:text-base bg-xuan hover:bg-xuanDark text-left ink-button">
+                            <span id="redOptText0">A. ---</span>
                         </button>
-                        <button onclick="handleBattleAnswer('red', 1)" id="redOpt1" class="py-3 px-3 bg-white border-2 border-red-800 hover:bg-red-100 rounded font-bold font-kai text-base btn-touch shadow">
-                            選項 B
+                        <button onclick="handleDualAnswer('red', 1)" id="redOpt1" class="p-2.5 border border-ink rounded-lg font-bold text-sm sm:text-base bg-xuan hover:bg-xuanDark text-left ink-button">
+                            <span id="redOptText1">B. ---</span>
                         </button>
                     </div>
-                </div>
 
-                <!-- 白隊欄位 (Right) -->
-                <div class="white-team-card p-4 rounded-lg flex flex-col justify-between min-h-[300px]">
-                    <div>
-                        <div class="flex justify-between items-center border-b border-blue-300 pb-2 mb-3">
-                            <span class="font-bold text-blue-800 font-kai text-lg">🏳️ 白隊</span>
-                            <div class="text-right">
-                                <span class="text-xs text-gray-600">得分: </span>
-                                <span id="whiteScore" class="text-xl font-bold text-blue-700 font-mono">0</span>
-                                <span id="whiteStreak" class="text-xs text-amber-800 ml-1"></span>
-                            </div>
+                    <!-- 紅隊反饋 -->
+                    <div id="redFeedback" class="hidden text-xs p-2 rounded bg-xuan border border-ink flex flex-col gap-1">
+                        <div class="flex justify-between font-bold">
+                            <span id="redResultText">--</span>
+                            <span id="redPointsText">+0</span>
                         </div>
-                        <div id="whiteStatus" class="text-xs font-bold text-gray-600 mb-2 min-h-[20px] font-kai">等待作答...</div>
-                        <div id="whiteFeedback" class="hidden mb-3 p-2 bg-white/90 rounded border border-blue-300 text-xs text-left"></div>
-                    </div>
-
-                    <div id="whiteOpts" class="grid grid-cols-1 gap-2">
-                        <button onclick="handleBattleAnswer('white', 0)" id="whiteOpt0" class="py-3 px-3 bg-white border-2 border-blue-800 hover:bg-blue-100 rounded font-bold font-kai text-base btn-touch shadow">
-                            選項 A
-                        </button>
-                        <button onclick="handleBattleAnswer('white', 1)" id="whiteOpt1" class="py-3 px-3 bg-white border-2 border-blue-800 hover:bg-blue-100 rounded font-bold font-kai text-base btn-touch shadow">
-                            選項 B
-                        </button>
                     </div>
                 </div>
 
+                <!-- 白隊欄位 -->
+                <div class="p-3 rounded-xl border-2 border-gray-600 bg-gray-50/50 flex flex-col gap-2">
+                    <div class="flex justify-between items-center border-b border-gray-400 pb-1.5">
+                        <span class="font-bold text-ink text-base flex items-center gap-1">⚪ 白隊</span>
+                        <div class="text-xs font-bold space-x-2">
+                            <span>連擊:<span id="whiteStreak">0</span></span>
+                            <span class="text-sm text-ink font-extrabold">得分:<span id="whiteScore">0</span></span>
+                        </div>
+                    </div>
+
+                    <!-- 白隊選項 -->
+                    <div class="flex flex-col gap-2" id="whiteOptionsBox">
+                        <button onclick="handleDualAnswer('white', 0)" id="whiteOpt0" class="p-2.5 border border-ink rounded-lg font-bold text-sm sm:text-base bg-xuan hover:bg-xuanDark text-left ink-button">
+                            <span id="whiteOptText0">A. ---</span>
+                        </button>
+                        <button onclick="handleDualAnswer('white', 1)" id="whiteOpt1" class="p-2.5 border border-ink rounded-lg font-bold text-sm sm:text-base bg-xuan hover:bg-xuanDark text-left ink-button">
+                            <span id="whiteOptText1">B. ---</span>
+                        </button>
+                    </div>
+
+                    <!-- 白隊反饋 -->
+                    <div id="whiteFeedback" class="hidden text-xs p-2 rounded bg-xuan border border-ink flex flex-col gap-1">
+                        <div class="flex justify-between font-bold">
+                            <span id="whiteResultText">--</span>
+                            <span id="whitePointsText">+0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- 中央推進按鈕 -->
-            <div id="battleControlArea" class="hidden text-center pt-2">
-                <button id="battleNextBtn" onclick="nextBattlePhase()" class="px-8 py-3 bg-vermilion hover:bg-vermilion-dark text-white font-kai font-bold text-lg rounded border-2 border-ink-900 shadow-lg btn-touch">
+            <!-- 共用解析與中央推進按鈕 -->
+            <div id="dualQuoteBox" class="hidden p-2.5 rounded-lg border border-ink bg-xuanDark text-xs sm:text-sm italic">
+                <span class="font-bold not-italic text-vermilion">【詩義解析】</span>
+                <span id="dualQuoteText">---</span>
+            </div>
+
+            <div class="text-center pt-1">
+                <button id="dualNextBtn" onclick="nextDualStep()" class="hidden px-6 py-2.5 text-base font-bold text-white bg-vermilion border-2 border-ink rounded-xl ink-button">
                     進入文學作品應用 ➔
                 </button>
             </div>
         </section>
 
-
-        <!-- ==================== 4. 結算畫面 ==================== -->
-        <section id="resultScreen" class="w-full max-w-xl classical-card p-6 md:p-8 rounded-lg hidden text-center my-auto">
-            <div class="seal-mark text-sm mb-3">勝負已定 ‧ 雅集圓滿</div>
-            <h2 id="resultTitle" class="text-3xl font-bold font-kai text-ink-900 mb-4">遊戲結束</h2>
-
-            <!-- 單人結算 -->
-            <div id="singleResult" class="hidden space-y-4 my-6">
-                <div class="p-4 bg-amber-50 rounded border border-amber-300">
-                    <div class="text-sm text-gray-600 font-kai">最終累積得分</div>
-                    <div id="finalSingleScore" class="text-5xl font-bold text-vermilion font-mono my-2">0</div>
-                    <div id="singleRankTitle" class="text-lg font-bold font-kai text-bamboo">文學雅士</div>
-                </div>
-            </div>
-
-            <!-- 兩人結算 -->
-            <div id="battleResult" class="hidden space-y-4 my-6">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="p-3 bg-red-50 border border-red-300 rounded">
-                        <div class="font-bold text-red-800 font-kai">🚩 紅隊總分</div>
-                        <div id="finalRedScore" class="text-3xl font-bold text-red-700 font-mono my-1">0</div>
-                    </div>
-                    <div class="p-3 bg-blue-50 border border-blue-300 rounded">
-                        <div class="font-bold text-blue-800 font-kai">🏳️ 白隊總分</div>
-                        <div id="finalWhiteScore" class="text-3xl font-bold text-blue-700 font-mono my-1">0</div>
-                    </div>
-                </div>
-                <div id="winnerText" class="text-2xl font-bold font-kai text-vermilion py-2 animate-bounce">
-                    🎉 恭喜 紅隊 獲勝！
-                </div>
-            </div>
-
-            <button onclick="restartGame()" class="w-full py-3 bg-ink-800 text-rice hover:bg-ink-900 font-kai font-bold text-xl rounded border border-black btn-touch">
-                再玩一局
-            </button>
-        </section>
-
     </main>
 
-    <!-- 規則說明 Modal -->
-    <div id="helpModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="classical-card p-6 rounded-lg max-w-lg w-full max-h-[85vh] overflow-y-auto">
-            <h3 class="text-xl font-bold font-kai text-ink-900 border-b border-gray-400 pb-2 mb-3">📜 遊戲規則與加減分機制</h3>
-            <div class="text-xs sm:text-sm text-gray-700 space-y-2 font-serif leading-relaxed">
-                <p><strong>1. 兩階段答題流程：</strong>每題先進行【意象辨識】，答完顯示回饋後進入【文學作品應用】，需於詩詞中選出正確作品。</p>
-                <p><strong>2. 倒數限時：</strong>每階段均有 3 秒作答時間，超過 3 秒未作答視同答錯。</p>
-                <p><strong>3. 連續加減分算法：</strong></p>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>答對第1題 +1分；連續答對第2題 +2分；第3題 +3分...依此類推。中斷後重計。</li>
-                    <li>答錯或超時第1題 -1分；連續答錯第2題 -2分；第3題 -3分...依此類推。中斷後重計。</li>
-                </ul>
-                <p><strong>4. 兩人對戰專屬獎勵：</strong>於 3 秒內雙方作答，搶先答對者額外獲得 <span class="text-vermilion font-bold">+3分 搶答紅利</span>！</p>
+    <!-- 頁尾 -->
+    <footer class="w-full max-w-5xl mx-auto text-center py-2 text-xs text-gray-600">
+        四時尋章：文學季節意象大挑戰 &copy; 文學意象教學輔助系統
+    </footer>
+
+    <!-- 規則彈窗 (Modal) -->
+    <div id="rulesModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="ink-card max-w-lg w-full p-6 bg-xuan max-h-[85vh] overflow-y-auto no-scrollbar flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b-2 border-paperBorder pb-2">
+                <h3 class="text-xl font-bold text-vermilion">📜 遊戲規則與計分說明</h3>
+                <button onclick="hideRulesModal()" class="text-2xl font-bold hover:text-vermilion">&times;</button>
             </div>
-            <button onclick="hideHelpModal()" class="w-full mt-5 py-2 bg-ink-800 text-white font-kai rounded">關閉說明</button>
+            <div class="text-sm space-y-3 leading-relaxed">
+                <p><strong>【遊戲目標】</strong> 在指定時間內辨識古典詩詞與意象之季節/月份，考驗意象理解與文學應用能力。</p>
+                <p><strong>【雙階段答題機制】</strong></p>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li><strong>第一階段 (意象辨識)：</strong>根據意象名稱選擇對應的月份或季節（限時 3 秒）。</li>
+                    <li><strong>第二階段 (文學作品應用)：</strong>根據同一意象，找出相應的文學詩詞名句（限時 3 秒）。</li>
+                </ul>
+                <p><strong>【計分與連擊規則】</strong></p>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li><strong>答對：</strong>第 1 題 +1 分；連續答對遞增得分 (+1, +2, +3...)。</li>
+                    <li><strong>答錯/超時：</strong>第 1 次 -1 分；連續答錯遞減扣分 (-1, -2, -3...)。</li>
+                    <li><strong>兩人對戰快手加分：</strong>每一階段最快答對的小隊，額外獲贈 <strong>+3 分 (首答快手加分)</strong>！</li>
+                </ul>
+            </div>
+            <div class="text-right pt-2 border-t border-paperBorder">
+                <button onclick="hideRulesModal()" class="px-5 py-2 font-bold bg-bamboo text-white border border-ink rounded-lg ink-button">
+                    了解並返回
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- 頁腳 -->
-    <footer class="text-center py-2 text-xs text-gray-500 font-kai">
-        四時尋章 ‧ 國學文學季節意象互動遊戲
-    </footer>
+    <!-- 遊戲結束結算彈窗 -->
+    <div id="gameOverModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="ink-card max-w-md w-full p-6 bg-xuan text-center flex flex-col gap-4">
+            <h3 class="text-3xl font-extrabold text-vermilion" id="gameOverTitle">🏆 挑戰結束！</h3>
+            <p id="gameOverSubtitle" class="text-gray-700 font-bold">時間到！統計詩才成就如下：</p>
 
+            <div id="gameOverScoreBox" class="p-4 bg-xuanDark rounded-xl border border-ink flex flex-col gap-2">
+                <!-- 動態注入分數結果 -->
+            </div>
 
-    <!-- JavaScript 腳本區塊 -->
+            <div class="flex gap-3 justify-center pt-2">
+                <button onclick="returnToSetup()" class="px-6 py-3 font-bold bg-vermilion text-white border-2 border-ink rounded-xl ink-button w-full">
+                    🔄 再玩一局
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 腳本邏輯 -->
     <script>
-        /* ==========================================================================
-           1. 完整題庫資料庫 (共 38 題月份題 + 157 題季節題 = 195 筆)
-           ========================================================================== */
+        /* ----------------------------------------------------
+           1. 完整題庫資料庫 (徹底防呆，確保零空值)
+        ---------------------------------------------------- */
         
-        // 月份題 38 筆 (答案為 1月~12月)
-        const rawMonthBank = [
-            ["春","孟春","1月","江南孟春天，荇葉大如錢。白雪裝梅樹，青袍似葑田。──唐˙鮑防〈狀江南·孟春〉"],
-            ["春","初春","1月","芳草才芽，梨花未雨，春魂已作天涯絮。──清˙徐燦〈踏莎行·初春〉"],
-            ["春","元春","1月","元春瑞雪潤紅城，氣象一新喜色增。─現代˙李遠新〈元春雪〉"],
-            ["春","正月","1月","正月裡來是新春，家家戶戶點紅燈。──江蘇民歌〈孟姜女哭長城〉"],
-            ["春","端月","1月","端月當中氣，東風應遠占。──唐˙劉禹錫〈和汴州令狐相公到鎮改月偶書所懷〉"],
-            ["春","元月","1月","今宵上元月，正照鳳凰城。──明˙王世貞〈上元夜同子相、明卿集子與宅賦得明字〉"],
-            ["春","仲春","2月","仲春時景好，草木漸舒榮。──唐˙韋應物〈仲春〉"],
-            ["春","季春","3月","季春孟夏交，積雨滿溝澮。──宋˙陸游〈雨晴〉"],
-            ["春","暮春","3月","暮春三月，江南草長，雜花生樹，群鶯亂飛。──南朝梁˙丘遲〈與陳伯之書〉"],
-            ["春","晚春","3月","草樹知春不久歸，百般紅紫鬥芳菲。──唐˙韓愈〈晚春〉"],
-            ["夏","孟夏","4月","孟夏草木長，繞屋樹扶疏。──晉˙陶淵明〈讀山海經·其一〉"],
-            ["夏","初夏","4月","紛紛紅紫已成塵，布穀聲中夏令新。──宋˙陸游〈初夏絕句〉"],
-            ["夏","仲夏","5月","仲夏苦夜短，開軒納微涼。──唐˙杜甫〈夏夜歎〉"],
-            ["夏","蒲月","5月","端陽蒲月，百草為藥。──民間諺語"],
-            ["夏","季夏","6月","季夏三月，腐草為螢。──《禮記˙月令》"],
-            ["夏","暮夏","6月","暮夏超然樂此生，晚露飲餘方鼾睡。──清˙林朝崧〈暮蟬〉"],
-            ["夏","荷月","6月","六月荷月，清水出芙蓉。──民間諺語"],
-            ["夏","荔月","6月","荔月蟬鳴噪，枝頭果正紅。──民間諺語"],
-            ["夏","暑月","6月","暑月放朝頻，青槐路絕塵。──唐˙姚合〈同裴起居厲侍御放朝遊曲江〉"],
-            ["秋","孟秋","7月","孟秋之月寒蟬鳴，仲秋之月鴻雁來。──《禮記˙月令》"],
-            ["秋","巧月","7月","七夕巧月，牛郎織女會鵲橋。──民間諺語"],
-            ["秋","霜月","7月","初聞征雁已無蟬，百尺樓高水接天。青女素娥俱耐冷，月中霜裡鬥嬋娟。──唐˙李商隱〈霜月〉"],
-            ["秋","仲秋","8月","仲秋之月，鴻雁來，玄鳥歸，群鳥養羞。──《禮記˙月令》"],
-            ["秋","桂月","8月","桂月桂花香，中秋賞月忙。──民間諺語"],
-            ["秋","荻月","8月","荻月秋風起，楓江夜客愁。──佚名"],
-            ["秋","中秋月","8月","暮雲收盡溢清寒，銀漢無聲轉玉盤。此生此夜不長好，明月明年何處看。──宋˙蘇軾〈中秋月〉"],
-            ["秋","仲商","8月","仲商秋半，涼風習習。──民間諺語"],
-            ["秋","季秋","9月","季秋之月，草木黃落，乃伐薪為炭。──《禮記˙月令》"],
-            ["秋","暮秋","9月","暮秋天氣早涼，落葉隨風飛舞。──佚名"],
-            ["秋","菊月","9月","菊月重陽，登高望遠。──民間諺語"],
-            ["冬","孟冬","10月","孟冬寒氣至，北風何慘慄。──漢˙佚名〈古詩十九首·孟冬寒氣至〉"],
-            ["冬","小陽春","10月","十月小陽春，無風暖融融。──民間諺語"],
-            ["冬","仲冬","11月","仲冬之月，冰益壯，地始坼。──《禮記˙月令》"],
-            ["冬","雪月","11月","雪月最相宜，梅雪都清絕。──宋˙張孝祥〈雪月〉"],
-            ["冬","季冬","12月","季冬之月，冰方盛，水澤腹堅。──《禮記˙月令》"],
-            ["冬","暮冬","12月","暮冬嚴寒氣，風雪滿長安。──佚名"],
-            ["冬","臘月","12月","臘月大雪，歲寒知松柏。──民間諺語"],
-            ["冬","冰月","12月","冰月嚴寒，滴水成冰。──民間諺語"]
+        // 38 題月份題 [小題分組, 單題題目, 答案文字, 詩詞延伸, 答案分組]
+        const MONTH_QUESTIONS = [
+            ["春", "孟春", "1月", "江南孟春天，荇葉大如錢。白雪裝梅樹，青袍似葑田。──唐˙鮑防〈狀江南·孟春〉", "1月"],
+            ["春", "初春", "1月", "芳草才芽，梨花未雨，春魂已作天涯絮。──清˙徐燦〈踏莎行·初春〉", "1月"],
+            ["春", "元春", "1月", "元春瑞雪潤紅城，氣象一新喜色增。─現代˙李遠新〈元春雪〉", "1月"],
+            ["春", "正月", "1月", "正月裡來是新春，家家戶戶點紅燈。──江蘇民歌〈孟姜女哭長城〉", "1月"],
+            ["春", "端月", "1月", "端月當中氣，東風應遠占。──唐˙劉禹錫〈和汴州令狐相公到鎮改月偶書所懷〉", "1月"],
+            ["春", "元月", "1月", "今宵上元月，正照鳳凰城。──明˙王世貞〈上元夜同子相、明卿集子與宅賦得明字〉", "1月"],
+            ["春", "仲春", "2月", "仲春時景好，草木漸舒榮。──唐˙韋應物〈仲春〉", "2月"],
+            ["春", "季春", "3月", "季春孟夏交，積雨滿溝澮。──宋˙陸游〈雨晴〉", "3月"],
+            ["春", "暮春", "3月", "暮春三月，江南草長，雜花生樹，群鶯亂飛。──南朝梁˙丘遲〈與陳伯之書〉", "3月"],
+            ["春", "晚春", "3月", "草樹知春不久歸，百般紅紫鬥芳菲。──唐˙韓愈〈晚春〉", "3月"],
+            ["夏", "孟夏", "4月", "孟夏草木長，繞屋樹扶疏。──晉˙陶淵明〈讀山海經·其一〉", "4月"],
+            ["夏", "初夏", "4月", "紛紛紅紫已成塵，布穀聲中夏令新。──宋˙陸游〈初夏絕句〉", "4月"],
+            ["夏", "仲夏", "5月", "仲夏苦夜短，開軒納微涼。──唐˙杜甫〈夏夜歎〉", "5月"],
+            ["夏", "蒲月", "5月", "端陽蒲月，百草為藥。──民間諺語", "5月"],
+            ["夏", "季夏", "6月", "季夏三月，腐草為螢。──《禮記˙月令》", "6月"],
+            ["夏", "暮夏", "6月", "暮夏超然樂此生，晚露飲餘方酣睡。──清˙林朝崧〈暮蟬〉", "6月"],
+            ["夏", "荷月", "6月", "六月荷月，清水出芙蓉。──民間諺語", "6月"],
+            ["夏", "荔月", "6月", "荔月蟬鳴噪，枝頭果正紅。──民間諺語", "6月"],
+            ["夏", "暑月", "6月", "暑月放朝頻，青槐路絕塵。──唐˙姚合〈同裴起居厲侍御放朝遊曲江〉", "6月"],
+            ["秋", "孟秋", "7月", "孟秋之月寒蟬鳴，仲秋之月鴻雁來。──《禮記˙月令》", "7月"],
+            ["秋", "巧月", "7月", "七夕巧月，牛郎織女會鵲橋。──民間諺語", "7月"],
+            ["秋", "霜月", "7月", "初聞征雁已無蟬，百尺樓高水接天。青女素娥俱耐冷，月中霜裡鬥嬋娟。──唐˙李商隱〈霜月〉", "7月"],
+            ["秋", "仲秋", "8月", "仲秋之月，鴻雁來，玄鳥歸，群鳥養羞。──《禮記˙月令》", "8月"],
+            ["秋", "桂月", "8月", "桂月桂花香，中秋賞月忙。──民間諺語", "8月"],
+            ["秋", "荻月", "8月", "荻月秋風起，楓江夜客愁。──佚名", "8月"],
+            ["秋", "中秋月", "8月", "暮雲收盡溢清寒，銀漢無聲轉玉盤。此生此夜不長好，明月明年何處看。──宋˙蘇軾〈中秋月〉", "8月"],
+            ["秋", "仲商", "8月", "仲商秋半，涼風習習。──民間諺語", "8月"],
+            ["秋", "季秋", "9月", "季秋之月，草木黃落，乃伐薪為炭。──《禮記˙月令》", "9月"],
+            ["秋", "暮秋", "9月", "暮秋天氣早涼，落葉隨風飛舞。──佚名", "9月"],
+            ["秋", "菊月", "9月", "菊月重陽，登高望遠。──民間諺語", "9月"],
+            ["冬", "孟冬", "10月", "孟冬寒氣至，北風何慘慄。──漢˙佚名〈古詩十九首·孟冬寒氣至〉", "10月"],
+            ["冬", "小陽春", "10月", "十月小陽春，無風暖融融。──民間諺語", "10月"],
+            ["冬", "仲冬", "11月", "仲冬之月，冰益壯，地始坼。──《禮記˙月令》", "11月"],
+            ["冬", "雪月", "11月", "雪月最相宜，梅雪都清絕。──宋˙張孝祥〈雪月〉", "11月"],
+            ["冬", "季冬", "12月", "季冬之月，冰方盛，水澤腹堅。──《禮記˙月令》", "12月"],
+            ["冬", "暮冬", "12月", "暮冬嚴寒氣，風雪滿長安。──佚名", "12月"],
+            ["冬", "臘月", "12月", "臘月大雪，歲寒知松柏。──民間諺語", "12月"],
+            ["冬", "冰月", "12月", "冰月嚴寒，滴水成冰。──民間諺語", "12月"]
         ];
 
-        // 季節題 157 筆 (答案為 春/夏/秋/冬)
-        const rawSeasonBank = [
-            // 月份組 (38筆)
-            ["月份","孟春","春","江南孟春天，荇葉大如錢。白雪裝梅樹，青袍似葑田。──唐˙鮑防〈狀江南·孟春〉"],
-            ["月份","初春","春","芳草才芽，梨花未雨，春魂已作天涯絮。──清˙徐燦〈踏莎行·初春〉"],
-            ["月份","元春","春","元春瑞雪潤紅城，氣象一新喜色增。─現代˙李遠新〈元春雪〉"],
-            ["月份","正月","春","正月裡來是新春，家家戶戶點紅燈。──江蘇民歌〈孟姜女哭長城〉"],
-            ["月份","端月","春","端月當中氣，東風應遠占。──唐˙劉禹錫〈和汴州令狐相公到鎮改月偶書所懷〉"],
-            ["月份","元月","春","今宵上元月，正照鳳凰城。──明˙王世貞〈上元夜同子相、明卿集子與宅賦得明字〉"],
-            ["月份","仲春","春","仲春時景好，草木漸舒榮。──唐˙韋應物〈仲春〉"],
-            ["月份","季春","春","季春孟夏交，積雨滿溝澮。──宋˙陸游〈雨晴〉"],
-            ["月份","暮春","春","暮春三月，江南草長，雜花生樹，群鶯亂飛。──南朝梁˙丘遲〈與陳伯之書〉"],
-            ["月份","晚春","春","草樹知春不久歸，百般紅紫鬥芳菲。──唐˙韓愈〈晚春〉"],
-            ["月份","孟夏","夏","孟夏草木長，繞屋樹扶疏。──晉˙陶淵明〈讀山海經·其一〉"],
-            ["月份","初夏","夏","紛紛紅紫已成塵，布穀聲中夏令新。──宋˙陸游〈初夏絕句〉"],
-            ["月份","仲夏","夏","仲夏苦夜短，開軒納微涼。──唐˙杜甫〈夏夜歎〉"],
-            ["月份","蒲月","夏","端陽蒲月，百草為藥。──民間諺語"],
-            ["月份","季夏","夏","季夏三月，腐草為螢。──《禮記˙月令》"],
-            ["月份","暮夏","夏","暮夏超然樂此生，晚露飲餘方鼾睡。──清˙林朝崧〈暮蟬〉"],
-            ["月份","荷月","夏","六月荷月，清水出芙蓉。──民間諺語"],
-            ["月份","荔月","夏","荔月蟬鳴噪，枝頭果正紅。──民間諺語"],
-            ["月份","暑月","夏","暑月放朝頻，青槐路絕塵。──唐˙姚合〈同裴起居厲侍御放朝遊曲江〉"],
-            ["月份","孟秋","秋","孟秋之月寒蟬鳴，仲秋之月鴻雁來。──《禮記˙月令》"],
-            ["月份","巧月","秋","七夕巧月，牛郎織女會鵲橋。──民間諺語"],
-            ["月份","霜月","秋","初聞征雁已無蟬，百尺樓高水接天。青女素娥俱耐冷，月中霜裡鬥嬋娟。──唐˙李商隱〈霜月〉"],
-            ["月份","仲秋","秋","仲秋之月，鴻雁來，玄鳥歸，群鳥養羞。──《禮記˙月令》"],
-            ["月份","桂月","秋","桂月桂花香，中秋賞月忙。──民間諺語"],
-            ["月份","荻月","秋","荻月秋風起，楓江夜客愁。──佚名"],
-            ["月份","中秋月","秋","暮雲收盡溢清寒，銀漢無聲轉玉盤。此生此夜不長好，明月明年何處看。──宋˙蘇軾〈中秋月〉"],
-            ["月份","仲商","秋","仲商秋半，涼風習習。──民間諺語"],
-            ["月份","季秋","秋","季秋之月，草木黃落，乃伐薪為炭。──《禮記˙月令》"],
-            ["月份","暮秋","秋","暮秋天氣早涼，落葉隨風飛舞。──佚名"],
-            ["月份","菊月","秋","菊月重陽，登高望遠。──民間諺語"],
-            ["月份","孟冬","冬","孟冬寒氣至，北風何慘慄。──漢˙佚名〈古詩十九首·孟冬寒氣至〉"],
-            ["月份","小陽春","冬","十月小陽春，無風暖融融。──民間諺語"],
-            ["月份","仲冬","冬","仲冬之月，冰益壯，地始坼。──《禮記˙月令》"],
-            ["月份","雪月","冬","雪月最相宜，梅雪都清絕。──宋˙張孝祥〈雪月〉"],
-            ["月份","季冬","冬","季冬之月，冰方盛，水澤腹堅。──《禮記˙月令》"],
-            ["月份","暮冬","冬","暮冬嚴寒氣，風雪滿長安。──佚名"],
-            ["月份","臘月","冬","臘月大雪，歲寒知松柏。──民間諺語"],
-            ["月份","冰月","冬","冰月嚴寒，滴水成冰。──民間諺語"],
-            // 節日節氣 (28筆)
-            ["節日節氣","春節","春","佳賞及春節，微風動芳草。──唐˙李世民〈初春登樓即目觀作述懷〉"],
-            ["節日節氣","元宵","春","試燈風裡賣元宵。──清˙符曾〈上元竹枝詞〉"],
-            ["節日節氣","寒食","春","春城無處不飛花，寒食東風御柳斜。──唐˙韓翃〈寒食〉"],
-            ["節日節氣","清明","春","清明時節雨紛紛，路上行人欲斷魂。──唐˙杜牧〈清明〉"],
-            ["節日節氣","驚蟄","春","微雨眾卉新，一雷驚蟄始。──唐˙韋應物〈觀田家〉"],
-            ["節日節氣","春分","春","春分雨腳落聲微，柳岸斜風帶客歸。──宋˙徐鉉〈春分日〉"],
-            ["節日節氣","端午","夏","端午臨中夏，時清日復長。──唐˙李隆基〈端午〉"],
-            ["節日節氣","夏至","夏","夏至一陰生，稍稍夕漏遲。──唐˙白居易〈和夢得夏至又作〉"],
-            ["節日節氣","小暑","夏","倏忽溫風至，因循小暑來。──唐˙元稹〈詠廿四氣詩〉"],
-            ["節日節氣","大暑","夏","萬瓦鱗鱗若火龍，日車不動汗珠融。無因羽翮飆輪上，坐晚涼交大暑中。──宋˙陸游〈大暑〉"],
-            ["節日節氣","七夕","秋","七夕今宵看碧霄，牽牛織女渡河橋。──唐˙林傑〈乞巧〉"],
-            ["節日節氣","中元","秋","絳節飄颻下，中元降慶辰。──唐˙羊士諤〈中元日贈張尊師〉"],
-            ["節日節氣","中秋","秋","中秋佳月最端圓。老癡頑。見多番。──宋˙陳著〈江城子〉"],
-            ["節日節氣","重陽","秋","佳節又重陽，玉枕紗廚，半夜涼初透。──宋˙李清照〈醉花陰〉"],
-            ["節日節氣","立秋","秋","立秋之日涼風至，又五日白露降。──《禮記˙月令》"],
-            ["節日節氣","白露","秋","蒹葭蒼蒼，白露為霜。所謂伊人，在水一方。──《詩經˙秦風˙蒹葭》"],
-            ["節日節氣","秋分","秋","漏鐘仍夜淺，時節欲秋分。──唐˙賈島〈夜喜賀蘭三見訪〉"],
-            ["節日節氣","寒露","秋","寒露驚秋晚，朝看菊漸黃。──唐˙元稹〈詠廿四氣詩〉"],
-            ["節日節氣","霜降","秋","霜降水痕收。淺碧鱗鱗露遠洲。──宋˙蘇軾〈南鄉子〉"],
-            ["節日節氣","下元","冬","下元水官節，祭雨解厄。──民間諺語"],
-            ["節日節氣","臘日","冬","臘日常年暖尚遙，今年臘日凍全消。──唐˙杜甫〈臘日〉"],
-            ["節日節氣","除夕","冬","除夕更闌人不睡，厭禳鈍滯迎新歲。──宋˙蘇軾〈守歲〉"],
-            ["節日節氣","冬至","冬","邯鄲驛裡逢冬至，抱膝燈前影伴身。──唐˙白居易〈邯鄲冬至夜思家〉"],
-            ["節日節氣","立冬","冬","立冬之日，水始冰，地始凍。──《禮記˙月令》"],
-            ["節日節氣","小雪","冬","小雪已晴蘆葉暗，長波乍急鶴聲嘶。──宋˙王安石〈初冬〉"],
-            ["節日節氣","大雪","冬","大雪壓青松，青松挺且直。──現代˙陳毅〈青松〉"],
-            ["節日節氣","小寒","冬","小寒連大呂，歡鵲壘新巢。──唐˙元稹〈詠廿四氣詩〉"],
-            ["節日節氣","大寒","冬","大寒宜近火，無事莫開門。──唐˙白居易〈大寒出江州闊步〉"],
-            // 風 (16筆)
-            ["風","東風","春","等閒識得東風面，萬紫千紅總是春。──宋˙朱熹〈春日〉"],
-            ["風","惠風","春","是日也，天朗氣清，惠風和暢。──晉˙王羲之〈蘭亭集序〉"],
-            ["風","和風","春","麗日燭春林，和風吹柳綠。──南朝陳˙張正見〈賦得春垂柳〉"],
-            ["風","楊柳風","春","沾衣欲濕杏花雨，吹面不寒楊柳風。──宋˙志南〈絕句〉"],
-            ["風","春風","春","春風又綠江南岸，明月何時照我還。──宋˙王安石〈泊船瓜洲〉"],
-            ["風","南風","夏","南風之薰兮，可以解吾民之慍兮。──先秦˙佚名〈南風歌〉"],
-            ["風","薰風","夏","薰風自南來，殿閣生微涼。──唐˙柳公權〈夏日聯句〉"],
-            ["風","荷風","夏","荷風送香氣，竹露滴清響。──唐˙孟浩然〈夏日南亭懷辛大〉"],
-            ["風","暖風","夏","暖風熏得遊人醉，直把杭州作汴州。──宋˙林升〈題臨安邸〉"],
-            ["風","西風","秋","昨夜西風凋碧樹，獨上高樓，望盡天涯路。──宋˙晏殊〈蝶戀花〉"],
-            ["風","霜風","秋","霜風淒緊，關河冷落，殘照當樓。──宋˙柳永〈八聲甘州〉"],
-            ["風","金風","秋","金風玉露一相逢，便勝卻人間無數。──宋˙秦觀〈鵲橋仙〉"],
-            ["風","商風","秋","商風早至，寒將屆。──佚名"],
-            ["風","北風","冬","北風卷地白草折，胡天八月即飛雪。──唐˙岑參〈白雪歌送武判官歸京〉"],
-            ["風","朔風","冬","朔風如解意，容易莫摧殘。──唐˙崔道融〈梅花〉"],
-            ["風","寒風","冬","寒風摧樹木，嚴霜結庭蘭。──漢˙佚名〈古詩十九首〉"],
-            // 動物 (12筆)
-            ["動物","黃鶯、黃鸝","春","兩個黃鸝鳴翠柳，一行白鷺上青天。──唐˙杜甫〈絕句〉"],
-            ["動物","燕","春","幾處早鶯爭暖樹，誰家新燕啄春泥。──唐˙白居易〈錢塘湖春行〉"],
-            ["動物","蜂蝶","春","蜂蝶紛紛過牆去，卻疑春色在鄰家。──唐˙王駕〈春晴〉"],
-            ["動物","蟬","夏","蟬噪林逾靜，鳥鳴山更幽。──南朝梁˙王籍〈入若耶溪〉"],
-            ["動物","蛙","夏","稻花香裡說豐年，聽取蛙聲一片。──宋˙辛棄疾〈西江月〉"],
-            ["動物","蚊","夏","夏蚊成雷，私擬作群鶴舞空。──清˙沈復〈兒時記趣〉"],
-            ["動物","蟋蟀","秋","蟋蟀在堂，歲聿其莫。──《詩經˙唐風˙蟋蟀》"],
-            ["動物","螽斯","秋","螽斯羽，詵詵兮。宜爾子孫，振振兮。──《詩經˙周南˙螽斯》"],
-            ["動物","秋雁","秋","長風萬里送秋雁，對此可以酣高樓。──唐˙李白〈宣州謝朓樓餞別校書叔雲〉"],
-            ["動物","寒蟬","秋","寒蟬淒切，對長亭晚，驟雨初歇。──宋˙柳永〈雨霖鈴〉"],
-            ["動物","秋蟹","秋","秋風起，秋蟹肥。──民間諺語"],
-            ["動物","千山鳥飛絕","冬","千山鳥飛絕，萬徑人蹤滅。──唐˙柳宗元〈江雪〉"],
-            // 植物 (34筆)
-            ["植物","桃花","春","竹外桃花三兩枝，春江水暖鴨先知。──宋˙蘇軾〈惠崇春江晚景〉"],
-            ["植物","杏花","春","借問酒家何處有，牧童遙指杏花村。──唐˙杜牧〈清明〉"],
-            ["植物","李花","春","李花怒放一樹白，遙望疑是春飛雪。──明˙佚名"],
-            ["植物","梨花","春","忽如一夜春風來，千樹萬樹梨花開。──唐˙岑參〈白雪歌送武判官歸京〉"],
-            ["植物","楊柳","春","渭城朝雨浥輕塵，客舍青青柳色新。──唐˙王維〈送元二使安西〉"],
-            ["植物","杜鵑花","春","蜀國曾聞子規鳥，宣城還見杜鵑花。──唐˙李白〈宣城見杜鵑花〉"],
-            ["植物","新筍","春","無數春筍滿林生，柴門密掩斷行人。──宋˙寇準〈春日登樓〉"],
-            ["植物","煙花","春","故人西辭黃鶴樓，煙花三月下揚州。──唐˙李白〈黃鶴樓送孟浩然之廣陵〉"],
-            ["植物","瓜","夏","童孫未解供耕織，也傍桑陰學種瓜。──宋˙范成大〈四時田園雜興〉"],
-            ["植物","荷","夏","接天蓮葉無窮碧，映日荷花別樣紅。──宋˙楊萬里〈曉出淨慈寺送林子方〉"],
-            ["植物","石榴","夏","五月榴花照眼明，枝間時見子初成。──唐˙韓愈〈題張十一旅舍三詠榴花〉"],
-            ["植物","菖蒲","夏","菖蒲酒美清尊共，葉裡黃鸝時一弄。──宋˙歐陽修〈漁家傲〉"],
-            ["植物","艾草","夏","端午臨夏至，家家插艾草。──民間諺語"],
-            ["植物","葵花","夏","更無柳絮因風起，惟有葵花向日傾。──宋˙司馬光〈客中初夏〉"],
-            ["植物","薔薇","夏","水晶簾動微風起，滿架薔薇一院香。──唐˙高駢〈山亭夏日〉"],
-            ["植物","黃梅","夏","黃梅時節家家雨，青草池塘處處蛙。──宋˙趙師秀〈約客〉"],
-            ["植物","翠竹","夏","翠竹垂秋露，青蘿拂曉風。──唐˙李白〈南亭賦〉"],
-            ["植物","稻花","夏","稻花香裡說豐年，聽取蛙聲一片。──宋˙辛棄疾〈西江月〉"],
-            ["植物","綠蔭","夏","綠蔭不減來時路，添得黃鸝四五聲。──宋˙曾幾〈三衢道中〉"],
-            ["植物","荔枝","夏","一騎紅塵妃子笑，無人知是荔枝來。──唐˙杜牧〈過華清宮〉"],
-            ["植物","鳳凰花","夏","鳳凰花開，驪歌初唱。──現代諺語"],
-            ["植物","黃花","秋","莫道不銷魂，簾捲西風，人比黃花瘦。──宋˙李清照〈醉花陰〉"],
-            ["植物","楓","秋","停車坐愛楓林晚，霜葉紅於二月花。──唐˙杜牧〈山行〉"],
-            ["植物","霜林","秋","曉來誰染霜林醉？總是離人淚。──元˙王實甫〈西廂記〉"],
-            ["植物","桂","秋","桂子月中落，天香雲外飄。──唐˙宋之問〈靈隱寺〉"],
-            ["植物","茱萸","秋","遙知兄弟登高處，遍插茱萸少一人。──唐˙王維〈九月九日憶山東兄弟〉"],
-            ["植物","蘆花","秋","蘆花飛雪秋風起，何處漁歌隱暮煙。──明˙徐渭〈題畫〉"],
-            ["植物","落葉","秋","早秋驚落葉，飄零似客心。──南北朝˙孔紹安〈落葉〉"],
-            ["植物","枯藤","秋","枯藤老樹昏鴉，小橋流水人家。──元˙馬致遠〈天淨沙·秋思〉"],
-            ["植物","紅柿","秋","秋去冬來萬物休，唯有柿樹掛燈籠。──民間諺語"],
-            ["植物","稻穗","秋","稻穗金黃秋收忙。──民間諺語"],
-            ["植物","荷盡","秋","荷盡已無擎雨蓋，菊殘猶有傲霜枝。──宋˙蘇軾〈贈劉景文〉"],
-            ["植物","橙黃","秋","一年好景君須記，最是橙黃橘綠時。──宋˙蘇軾〈贈劉景文〉"],
-            ["植物","橘綠","秋","一年好景君須記，最是橙黃橘綠時。──宋˙蘇軾〈贈劉景文〉"],
-            ["植物","梧桐","秋","寂寞梧桐深院鎖清秋。──五代十國˙李煜〈相見歡〉"],
-            ["植物","松","冬","歲寒，然後知松柏之後凋也。──《論語˙子罕》"],
-            ["植物","竹","冬","寧可食無肉，不可居無竹。──宋˙蘇軾〈於潛僧綠筠軒〉"],
-            ["植物","梅","冬","牆角數枝梅，凌寒獨自開。──宋˙王安石〈梅花〉"],
-            ["植物","柏","冬","歲寒，然後知松柏之後凋也。──《論語˙子罕》"],
-            ["植物","百花絕","冬","季冬之月，百花絕，唯梅獨芳。──民間諺語"],
-            // 天象及人類活動 (23筆)
-            ["天象及人類活動","斗杓東指","春","斗杓東指，天下皆春。──《鶡冠子˙環流》"],
-            ["天象及人類活動","韶光","春","九十韶光如夢裡，寸草丹心唯報國。──明˙湯顯祖"],
-            ["天象及人類活動","青陽","春","春為青陽，夏為朱明。──《爾雅˙釋天》"],
-            ["天象及人類活動","春雷","春","驚蟄春雷初響，萬物復甦。──民間諺語"],
-            ["天象及人類活動","綿綿細雨","春","清明時節細雨綿綿。──民間諺語"],
-            ["天象及人類活動","春耕","春","雲放連山瞻岳麓，雪消平野看春耕。──宋˙蘇轍〈和孔教授武仲濟南四詠北渚亭〉"],
-            ["天象及人類活動","斗杓南指","夏","斗杓南指，天下皆夏。──《鶡冠子˙環流》"],
-            ["天象及人類活動","競舟","夏","五月五日，楚人哀屈原，競舟拯救。──民間諺語"],
-            ["天象及人類活動","西北雨","夏","西北雨，落過無車路。──台灣俗諺"],
-            ["天象及人類活動","梅雨","夏","一川菸草，滿城風絮，梅子黃時雨。──宋˙賀鑄〈青玉案〉"],
-            ["天象及人類活動","夏耘","夏","農夫方夏耘，安坐吾敢食。──唐˙杜甫〈大熱〉"],
-            ["天象及人類活動","斗杓西指","秋","斗杓西指，天下皆秋。──《鶡冠子˙環流》"],
-            ["天象及人類活動","菊酒","秋","重陽佳節飲菊酒，登高望遠避災邪。──民間諺語"],
-            ["天象及人類活動","霜","秋","蒹葭蒼蒼，白露為霜。──《詩經˙秦風˙蒹葭》"],
-            ["天象及人類活動","秋收","秋","秋收政其時，全在要精潔。──釋宗杲《偈頌一百零二首》"],
-            ["天象及人類活動","斗杓北指","冬","斗杓北指，天下皆冬。──《鶡冠子˙環流》"],
-            ["天象及人類活動","冰","冬","瀚海闌干百丈冰，愁雲慘淡萬里凝。──唐˙岑參〈白雪歌送武判官歸京〉"],
-            ["天象及人類活動","雪","冬","孤舟簑笠翁，獨釣寒江雪。──唐˙柳宗元〈江雪〉"],
-            ["天象及人類活動","雪花","冬","六出飛花入戶時，坐看青竹變瓊枝。──唐˙高駢〈對雪〉"],
-            ["天象及人類活動","臘八粥","冬","臘八吃粥，寓意豐收。──民間諺語"],
-            ["天象及人類活動","歲餘","冬","冬者歲之餘，夜者日之餘，陰雨者時之餘也。──《三國志˙魏書˙王肅傳》"],
-            ["天象及人類活動","歲末","冬","歲末寒冬，梅花獨開。──民間諺語"],
-            ["天象及人類活動","冬藏","冬","歲暮冬已深，萬物皆藏蟄。──佚名"]
+        // 157 題季節題
+        const SEASON_QUESTIONS = [
+            // 1-38 為對應季節版本 (小題分組為 "月份")
+            ["月份", "孟春", "春", "江南孟春天，荇葉大如錢。白雪裝梅樹，青袍似葑田。──唐˙鮑防〈狀江南·孟春〉", "春"],
+            ["月份", "初春", "春", "芳草才芽，梨花未雨，春魂已作天涯絮。──清˙徐燦〈踏莎行·初春〉", "春"],
+            ["月份", "元春", "春", "元春瑞雪潤紅城，氣象一新喜色增。─現代˙李遠新〈元春雪〉", "春"],
+            ["月份", "正月", "春", "正月裡來是新春，家家戶戶點紅燈。──江蘇民歌〈孟姜女哭長城〉", "春"],
+            ["月份", "端月", "春", "端月當中氣，東風應遠占。──唐˙劉禹錫〈和汴州令狐相公到鎮改月偶書所懷〉", "春"],
+            ["月份", "元月", "春", "今宵上元月，正照鳳凰城。──明˙王世貞〈上元夜同子相、明卿集子與宅賦得明字〉", "春"],
+            ["月份", "仲春", "春", "仲春時景好，草木漸舒榮。──唐˙韋應物〈仲春〉", "春"],
+            ["月份", "季春", "春", "季春孟夏交，積雨滿溝澮。──宋˙陸游〈雨晴〉", "春"],
+            ["月份", "暮春", "春", "暮春三月，江南草長，雜花生樹，群鶯亂飛。──南朝梁˙丘遲〈與陳伯之書〉", "春"],
+            ["月份", "晚春", "春", "草樹知春不久歸，百般紅紫鬥芳菲。──唐˙韓愈〈晚春〉", "春"],
+            ["月份", "孟夏", "夏", "孟夏草木長，繞屋樹扶疏。──晉˙陶淵明〈讀山海經·其一〉", "夏"],
+            ["月份", "初夏", "夏", "紛紛紅紫已成塵，布穀聲中夏令新。──宋˙陸游〈初夏絕句〉", "夏"],
+            ["月份", "仲夏", "夏", "仲夏苦夜短，開軒納微涼。──唐˙杜甫〈夏夜歎〉", "夏"],
+            ["月份", "蒲月", "夏", "端陽蒲月，百草為藥。──民間諺語", "夏"],
+            ["月份", "季夏", "夏", "季夏三月，腐草為螢。──《禮記˙月令》", "夏"],
+            ["月份", "暮夏", "夏", "暮夏超然樂此生，晚露飲餘方酣睡。──清˙林朝崧〈暮蟬〉", "夏"],
+            ["月份", "荷月", "夏", "六月荷月，清水出芙蓉。──民間諺語", "夏"],
+            ["月份", "荔月", "夏", "荔月蟬鳴噪，枝頭果正紅。──民間諺語", "夏"],
+            ["月份", "暑月", "夏", "暑月放朝頻，青槐路絕塵。──唐˙姚合〈同裴起居厲侍御放朝遊曲江〉", "夏"],
+            ["月份", "孟秋", "秋", "孟秋之月寒蟬鳴，仲秋之月鴻雁來。──《禮記˙月令》", "秋"],
+            ["月份", "巧月", "秋", "七夕巧月，牛郎織女會鵲橋。──民間諺語", "秋"],
+            ["月份", "霜月", "秋", "初聞征雁已無蟬，百尺樓高水接天。青女素娥俱耐冷，月中霜裡鬥嬋娟。──唐˙李商隱〈霜月〉", "秋"],
+            ["月份", "仲秋", "秋", "仲秋之月，鴻雁來，玄鳥歸，群鳥養羞。──《禮記˙月令》", "秋"],
+            ["月份", "桂月", "秋", "桂月桂花香，中秋賞月忙。──民間諺語", "秋"],
+            ["月份", "荻月", "秋", "荻月秋風起，楓江夜客愁。──佚名", "秋"],
+            ["月份", "中秋月", "秋", "暮雲收盡溢清寒，銀漢無聲轉玉盤。此生此夜不長好，明月明年何處看。──宋˙蘇軾〈中秋月〉", "秋"],
+            ["月份", "仲商", "秋", "仲商秋半，涼風習習。──民間諺語", "秋"],
+            ["月份", "季秋", "秋", "季秋之月，草木黃落，乃伐薪為炭。──《禮記˙月令》", "秋"],
+            ["月份", "暮秋", "秋", "暮秋天氣早涼，落葉隨風飛舞。──佚名", "秋"],
+            ["月份", "菊月", "秋", "菊月重陽，登高望遠。──民間諺語", "秋"],
+            ["月份", "孟冬", "冬", "孟冬寒氣至，北風何慘慄。──漢˙佚名〈古詩十九首·孟冬寒氣至〉", "冬"],
+            ["月份", "小陽春", "冬", "十月小陽春，無風暖融融。──民間諺語", "冬"],
+            ["月份", "仲冬", "冬", "仲冬之月，冰益壯，地始坼。──《禮記˙月令》", "冬"],
+            ["月份", "雪月", "冬", "雪月最相宜，梅雪都清絕。──宋˙張孝祥〈雪月〉", "冬"],
+            ["月份", "季冬", "冬", "季冬之月，冰方盛，水澤腹堅。──《禮記˙月令》", "冬"],
+            ["月份", "暮冬", "冬", "暮冬嚴寒氣，風雪滿長安。──佚名", "冬"],
+            ["月份", "臘月", "冬", "臘月大雪，歲寒知松柏。──民間諺語", "冬"],
+            ["月份", "冰月", "冬", "冰月嚴寒，滴水成冰。──民間諺語", "冬"],
+            // 39-157 豐富題庫
+            ["節日節氣", "春節", "春", "佳賞及春節，微風動芳草。──唐˙李世民〈初春登樓即目觀作述懷〉", "春"],
+            ["節日節氣", "元宵", "春", "試燈風裡賣元宵。──清˙符曾〈上元竹枝詞〉", "春"],
+            ["節日節氣", "寒食", "春", "春城無處不飛花，寒食東風御柳斜。──唐˙韓翃〈寒食〉", "春"],
+            ["節日節氣", "清明", "春", "清明時節雨紛紛，路上行人欲斷魂。──唐˙杜牧〈清明〉", "春"],
+            ["節日節氣", "驚蟄", "春", "微雨眾卉新，一雷驚蟄始。──唐˙韋應物〈觀田家〉", "春"],
+            ["節日節氣", "春分", "春", "春分雨腳落聲微，柳岸斜風帶客歸。──宋˙徐鉉〈春分日〉", "春"],
+            ["節日節氣", "端午", "夏", "端午臨中夏，時清日復長。──唐˙李隆基〈端午〉", "夏"],
+            ["節日節氣", "夏至", "夏", "夏至一陰生，稍稍夕漏遲。──唐˙白居易〈和夢得夏至又作〉", "夏"],
+            ["節日節氣", "小暑", "夏", "倏忽溫風至，因循小暑來。──唐˙元稹〈詠廿四氣詩〉", "夏"],
+            ["節日節氣", "大暑", "夏", "萬瓦鱗鱗若火龍，日車不動汗珠融。無因羽翮飆輪上，坐晚涼交大暑中。──宋˙陸游〈大暑〉", "夏"],
+            ["節日節氣", "七夕", "秋", "七夕今宵看碧霄，牽牛織女渡河橋。──唐˙林傑〈乞巧〉", "秋"],
+            ["節日節氣", "中元", "秋", "絳節飄颻下，中元降慶辰。──唐˙羊士諤〈中元日贈張尊師〉", "秋"],
+            ["節日節氣", "中秋", "秋", "中秋佳月最端圓。老癡頑。見多番。──宋˙陳著〈江城子〉", "秋"],
+            ["節日節氣", "重陽", "秋", "佳節又重陽，玉枕紗廚，半夜涼初透。──宋˙李清照〈醉花陰〉", "秋"],
+            ["節日節氣", "立秋", "秋", "立秋之日涼風至，又五日白露降。──《禮記˙月令》", "秋"],
+            ["節日節氣", "白露", "秋", "蒹葭蒼蒼，白露為霜。所謂伊人，在水一方。──《詩經˙秦風˙蒹葭》", "秋"],
+            ["節日節氣", "秋分", "秋", "漏鐘仍夜淺，時節欲秋分。──唐˙賈島〈夜喜賀蘭三見訪〉", "秋"],
+            ["節日節氣", "寒露", "秋", "寒露驚秋晚，朝看菊漸黃。──唐˙元稹〈詠廿四氣詩〉", "秋"],
+            ["節日節氣", "霜降", "秋", "霜降水痕收。淺碧鱗鱗露遠洲。──宋˙蘇軾〈南鄉子〉", "秋"],
+            ["節日節氣", "下元", "冬", "下元水官節，祭雨解厄。──民間諺語", "冬"],
+            ["節日節氣", "臘日", "冬", "臘日常年暖尚遙，今年臘日凍全消。──唐˙杜甫〈臘日〉", "冬"],
+            ["節日節氣", "除夕", "冬", "除夕更闌人不睡，厭禳鈍滯迎新歲。──宋˙蘇軾〈守歲〉", "冬"],
+            ["節日節氣", "冬至", "冬", "邯鄲驛裡逢冬至，抱膝燈前影伴身。──唐˙白居易〈邯鄲冬至夜思家〉", "冬"],
+            ["節日節氣", "立冬", "冬", "立冬之日，水始冰，地始凍。──《禮記˙月令》", "冬"],
+            ["節日節氣", "小雪", "冬", "小雪已晴蘆葉暗，長波乍急鶴聲嘶。──宋˙王安石〈初冬〉", "冬"],
+            ["節日節氣", "大雪", "冬", "大雪壓青松，青松挺且直。──現代˙陳毅〈青松〉", "冬"],
+            ["節日節氣", "小寒", "冬", "小寒連大呂，歡鵲壘新巢。──唐˙元稹〈詠廿四氣詩〉", "冬"],
+            ["節日節氣", "大寒", "冬", "大寒宜近火，無事莫開門。──唐˙白居易〈大寒出江州闊步〉", "冬"],
+            ["風", "東風", "春", "等閒識得東風面，萬紫千紅總是春。──宋˙朱熹〈春日〉", "春"],
+            ["風", "惠風", "春", "是日也，天朗氣清，惠風和暢。──晉˙王羲之〈蘭亭集序〉", "春"],
+            ["風", "和風", "春", "麗日燭春林，和風吹柳綠。──南朝陳˙張正見〈賦得春垂柳〉", "春"],
+            ["風", "楊柳風", "春", "沾衣欲濕杏花雨，吹面不寒楊柳風。──宋˙志南〈絕句〉", "春"],
+            ["風", "春風", "春", "春風又綠江南岸，明月何時照我還。──宋˙王安石〈泊船瓜洲〉", "春"],
+            ["風", "南風", "夏", "南風之薰兮，可以解吾民之慍兮。──先秦˙佚名〈南風歌〉", "夏"],
+            ["風", "薰風", "夏", "薰風自南來，殿閣生微涼。──唐˙柳公權〈夏日聯句〉", "夏"],
+            ["風", "荷風", "夏", "荷風送香氣，竹露滴清響。──唐˙孟浩然〈夏日南亭懷辛大〉", "夏"],
+            ["風", "暖風", "夏", "暖風熏得遊人醉，直把杭州作汴州。──宋˙林升〈題臨安邸〉", "夏"],
+            ["風", "西風", "秋", "昨夜西風凋碧樹，獨上高樓，望盡天涯路。──宋˙晏殊〈蝶戀花〉", "秋"],
+            ["風", "霜風", "秋", "霜風淒緊，關河冷落，殘照當樓。──宋˙柳永〈八聲甘州〉", "秋"],
+            ["風", "金風", "秋", "金風玉露一相逢，便勝卻人間無數。──宋˙秦觀〈鵲橋仙〉", "秋"],
+            ["風", "商風", "秋", "商風早至，寒將屆。──佚名", "秋"],
+            ["風", "北風", "冬", "北風卷地白草折，胡天八月即飛雪。──唐˙岑參〈白雪歌送武判官歸京〉", "冬"],
+            ["風", "朔風", "冬", "朔風如解意，容易莫摧殘。──唐˙崔道融〈梅花〉", "冬"],
+            ["風", "寒風", "冬", "寒風摧樹木，嚴霜結庭蘭。──漢˙佚名〈古詩十九首〉", "冬"],
+            ["動物", "黃鶯、黃鸝", "春", "兩個黃鸝鳴翠柳，一行白鷺上青天。──唐˙杜甫〈絕句〉", "春"],
+            ["動物", "燕", "春", "幾處早鶯爭暖樹，誰家新燕啄春泥。──唐˙白居易〈錢塘湖春行〉", "春"],
+            ["動物", "蜂蝶", "春", "蜂蝶紛紛過牆去，卻疑春色在鄰家。──唐˙王駕〈春晴〉", "春"],
+            ["動物", "蟬", "夏", "蟬噪林逾靜，鳥鳴山更幽。──南朝梁˙王籍〈入若耶溪〉", "夏"],
+            ["動物", "蛙", "夏", "稻花香裡說豐年，聽取蛙聲一片。──宋˙辛棄疾〈西江月〉", "夏"],
+            ["動物", "蚊", "夏", "夏蚊成雷，私擬作群鶴舞空。──清˙沈復〈兒時記趣〉", "夏"],
+            ["動物", "蟋蟀", "秋", "蟋蟀在堂，歲聿其莫。──《詩經˙唐風˙蟋蟀》", "秋"],
+            ["動物", "螽斯", "秋", "螽斯羽，詵詵兮。宜爾子孫，振振兮。──《詩經˙周南˙螽斯》", "秋"],
+            ["動物", "秋雁", "秋", "長風萬里送秋雁，對此可以酣高樓。──唐˙李白〈宣州謝朓樓餞別校書叔雲〉", "秋"],
+            ["動物", "寒蟬", "秋", "寒蟬淒切，對長亭晚，驟雨初歇。──宋˙柳永〈雨霖鈴〉", "秋"],
+            ["動物", "秋蟹", "秋", "秋風起，秋蟹肥。──民間諺語", "秋"],
+            ["動物", "千山鳥飛絕", "冬", "千山鳥飛絕，萬徑人蹤滅。──唐˙柳宗元〈江雪〉", "冬"],
+            ["植物", "桃花", "春", "竹外桃花三兩枝，春江水暖鴨先知。──宋˙蘇軾〈惠崇春江晚景〉", "春"],
+            ["植物", "杏花", "春", "借問酒家何處有，牧童遙指杏花村。──唐˙杜牧〈清明〉", "春"],
+            ["植物", "李花", "春", "李花怒放一樹白，遙望疑是春飛雪。──明˙佚名", "春"],
+            ["植物", "梨花", "春", "忽如一夜春風來，千樹萬樹梨花開。──唐˙岑參〈白雪歌送武判官歸京〉", "春"],
+            ["植物", "楊柳", "春", "渭城朝雨浥輕塵，客舍青青柳色新。──唐˙王維〈送元二使安西〉", "春"],
+            ["植物", "杜鵑花", "春", "蜀國曾聞子規鳥，宣城還見杜鵑花。──唐˙李白〈宣城見杜鵑花〉", "春"],
+            ["植物", "新筍", "春", "無數春筍滿林生，柴門密掩斷行人。──宋˙寇準〈春日登樓〉", "春"],
+            ["植物", "煙花", "春", "故人西辭黃鶴樓，煙花三月下揚州。──唐˙李白〈黃鶴樓送孟浩然之廣陵〉", "春"],
+            ["植物", "瓜", "夏", "童孫未解供耕織，也傍桑陰學種瓜。──宋˙范成大〈四時田園雜興〉", "夏"],
+            ["植物", "荷", "夏", "接天蓮葉無窮碧，映日荷花別樣紅。──宋˙楊萬里〈曉出淨慈寺送林子方〉", "夏"],
+            ["植物", "石榴", "夏", "五月榴花照眼明，枝間時見子初成。──唐˙韓愈〈題張十一旅舍三詠榴花〉", "夏"],
+            ["植物", "菖蒲", "夏", "菖蒲酒美清尊共，葉裡黃鸝時一弄。──宋˙歐陽修〈漁家傲〉", "夏"],
+            ["植物", "艾草", "夏", "端午臨夏至，家家插艾草。──民間諺語", "夏"],
+            ["植物", "葵花", "夏", "更無柳絮因風起，惟有葵花向日傾。──宋˙司馬光〈客中初夏〉", "夏"],
+            ["植物", "薔薇", "夏", "水晶簾動微風起，滿架薔薇一院香。──唐˙高駢〈山亭夏日〉", "夏"],
+            ["植物", "黃梅", "夏", "黃梅時節家家雨，青草池塘處處蛙。──宋˙趙師秀〈約客〉", "夏"],
+            ["植物", "翠竹", "夏", "翠竹垂秋露，青蘿拂曉風。──唐˙李白〈南亭賦〉", "夏"],
+            ["植物", "稻花", "夏", "稻花香裡說豐年，聽取蛙聲一片。──宋˙辛棄疾〈西江月〉", "夏"],
+            ["植物", "綠蔭", "夏", "綠蔭不減來時路，添得黃鸝四五聲。──宋˙曾幾〈三衢道中〉", "夏"],
+            ["植物", "荔枝", "夏", "一騎紅塵妃子笑，無人知是荔枝來。──唐˙杜牧〈過華清宮〉", "夏"],
+            ["植物", "鳳凰花", "夏", "鳳凰花開，驪歌初唱。──現代諺語", "夏"],
+            ["植物", "菊、黃花", "秋", "莫道不銷魂，簾捲西風，人比黃花瘦。──宋˙李清照〈醉花陰〉", "秋"],
+            ["植物", "楓", "秋", "停車坐愛楓林晚，霜葉紅於二月花。──唐˙杜牧〈山行〉", "秋"],
+            ["植物", "霜林", "秋", "曉來誰染霜林醉？總是離人淚。──元˙王實甫〈西廂記〉", "秋"],
+            ["植物", "桂", "秋", "桂子月中落，天香雲外飄。──唐˙宋之問〈靈隱寺〉", "秋"],
+            ["植物", "茱萸", "秋", "遙知兄弟登高處，遍插茱萸少一人。──唐˙王維〈九月九日憶山東兄弟〉", "秋"],
+            ["植物", "蘆花", "秋", "蘆花飛雪秋風起，何處漁歌隱暮煙。──明˙徐渭〈題畫〉", "秋"],
+            ["植物", "落葉", "秋", "早秋驚落葉，飄零似客心。──南北朝˙孔紹安〈落葉〉", "秋"],
+            ["植物", "枯藤", "秋", "枯藤老樹昏鴉，小橋流水人家。──元˙馬致遠〈天淨沙·秋思〉", "秋"],
+            ["植物", "紅柿", "秋", "秋去冬來萬物休，唯有柿樹掛燈籠。──民間諺語", "秋"],
+            ["植物", "稻穗", "秋", "稻穗金黃秋收忙。──民間諺語", "秋"],
+            ["植物", "荷盡", "秋", "荷盡已無擎雨蓋，菊殘猶有傲霜枝。──宋˙蘇軾〈贈劉景文〉", "秋"],
+            ["植物", "橙黃", "秋", "一年好景君須記，最是橙黃橘綠時。──宋˙蘇軾〈贈劉景文〉", "秋"],
+            ["植物", "橘綠", "秋", "一年好景君須記，最是橙黃橘綠時。──宋˙蘇軾〈贈劉景文〉", "秋"],
+            ["植物", "梧桐", "秋", "寂寞梧桐深院鎖清秋。──五代十國˙李煜〈相見歡〉", "秋"],
+            ["植物", "松", "冬", "歲寒，然後知松柏之後凋也。──《論語˙子罕》", "冬"],
+            ["植物", "竹", "冬", "寧可食無肉，不可居無竹。──宋˙蘇軾〈於潛僧綠筠軒〉", "冬"],
+            ["植物", "梅", "冬", "牆角數枝梅，凌寒獨自開。──宋˙王安石〈梅花〉", "冬"],
+            ["植物", "柏", "冬", "歲寒，然後知松柏之後凋也。──《論語˙子罕》", "冬"],
+            ["植物", "百花絕", "冬", "季冬之月，百花絕，唯梅獨芳。──民間諺語", "冬"],
+            ["天象及人類活動", "斗杓東指", "春", "斗杓東指，天下皆春。──《鶡冠子˙環流》", "春"],
+            ["天象及人類活動", "韶光", "春", "九十韶光如夢裡，寸草丹心唯報國。──明˙湯顯祖", "春"],
+            ["天象及人類活動", "青陽", "春", "春為青陽，夏為朱明。──《爾雅˙釋天》", "春"],
+            ["天象及人類活動", "春雷", "春", "驚蟄春雷初響，萬物復甦。──民間諺語", "春"],
+            ["天象及人類活動", "綿綿細雨", "春", "清明時節細雨綿綿。──民間諺語", "春"],
+            ["天象及人類活動", "春耕", "春", "雲放連山瞻岳麓，雪消平野看春耕。──宋˙蘇轍〈和孔教授武仲濟南四詠北渚亭〉", "春"],
+            ["天象及人類活動", "斗杓南指", "夏", "斗杓南指，天下皆夏。──《鶡冠子˙環流》", "夏"],
+            ["天象及人類活動", "競舟", "夏", "五月五日，楚人哀屈原，競舟拯救。──民間諺語", "夏"],
+            ["天象及人類活動", "西北雨", "夏", "西北雨，落過無車路。──台灣俗諺", "夏"],
+            ["天象及人類活動", "梅雨、梅子黃時雨", "夏", "一川菸草，滿城風絮，梅子黃時雨。──宋˙賀鑄〈青玉案〉", "夏"],
+            ["天象及人類活動", "夏耘", "夏", "農夫方夏耘，安坐吾敢食。──唐˙杜甫〈大熱〉", "夏"],
+            ["天象及人類活動", "斗杓西指", "秋", "斗杓西指，天下皆秋。──《鶡冠子˙環流》", "秋"],
+            ["天象及人類活動", "菊酒", "秋", "重陽佳節飲菊酒，登高望遠避災邪。──民間諺語", "秋"],
+            ["天象及人類活動", "霜", "秋", "蒹葭蒼蒼，白露為霜。──《詩經˙秦風˙蒹葭》", "秋"],
+            ["天象及人類活動", "秋收", "秋", "秋收政其時，全在要精潔。──釋宗杲《偈頌一百零二首》", "秋"],
+            ["天象及人類活動", "斗杓北指", "冬", "斗杓北指，天下皆冬。──《鶡冠子˙環流》", "冬"],
+            ["天象及人類活動", "冰", "冬", "瀚海闌干百丈冰，愁雲慘淡萬里凝。──唐˙岑參〈白雪歌送武判官歸京〉", "冬"],
+            ["天象及人類活動", "雪", "冬", "孤舟簑笠翁，獨釣寒江雪。──唐˙柳宗元〈江雪〉", "冬"],
+            ["天象及人類活動", "雪花、六出飛花", "冬", "六出飛花入戶時，坐看青竹變瓊枝。──唐˙高駢〈對雪〉", "冬"],
+            ["天象及人類活動", "臘八粥", "冬", "臘八吃粥，寓意豐收。──民間諺語", "冬"],
+            ["天象及人類活動", "歲餘", "冬", "冬者歲之餘，夜者日之餘，陰雨者時之餘也。──《三國志˙魏書˙王肅傳》", "冬"],
+            ["天象及人類活動", "歲末", "冬", "歲末寒冬，梅花獨開。──民間諺語", "冬"],
+            ["天象及人類活動", "歲末冬藏", "冬", "歲暮冬已深，萬物皆藏蟄。──佚名", "冬"]
         ];
 
-        // 轉換為標準題目資料格式
-        const MONTH_DATA = rawMonthBank.map(item => ({
-            subCat: item[0],
-            q: item[1],
-            ans: item[2],
-            poem: item[3],
-            group: item[2] // 答案組別 (1月~12月)
-        }));
+        const SUB_CATEGORIES = ["月份", "節日節氣", "風", "動物", "植物", "天象及人類活動", "不分類"];
 
-        const SEASON_DATA = rawSeasonBank.map(item => ({
-            subCat: item[0],
-            q: item[1],
-            ans: item[2],
-            poem: item[3],
-            group: item[2] // 答案組別 (春/夏/秋/冬)
-        }));
-
-
-        /* ==========================================================================
-           2. Web Audio API 音效合成器 (全包覆 try-catch 確保不中斷主邏輯)
-           ========================================================================== */
+        /* ----------------------------------------------------
+           2. Web Audio API 音效系統 (全面 try...catch 保護)
+        ---------------------------------------------------- */
         let audioCtx = null;
-        let isMuted = false;
+        let soundEnabled = true;
 
         function initAudio() {
-            try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtx) {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) audioCtx = new AudioContext();
+                } catch (e) {
+                    console.log("Audio not supported");
                 }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now); // A3
+                    osc.frequency.setValueAtTime(196, now + 0.15); // G3
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'speedBonus') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(880, now + 0.08);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'gameover') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(392, now);
+                    osc.frequency.setValueAtTime(523.25, now + 0.2);
+                    osc.frequency.setValueAtTime(659.25, now + 0.4);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+                    osc.start(now);
+                    osc.stop(now + 0.7);
                 }
             } catch (e) {
-                console.log("AudioContext init error:", e);
+                console.log("Audio playback error:", e);
             }
         }
 
         function toggleSound() {
-            isMuted = !isMuted;
-            document.getElementById('soundToggleBtn').innerText = isMuted ? '🔇' : '🔊';
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').innerText = soundEnabled ? '🔊' : '🔇';
+            document.getElementById('soundText').innerText = soundEnabled ? '音效: 開' : '音效: 關';
+            if (soundEnabled) playSound('click');
         }
 
-        function playSound(type) {
-            if (isMuted) return;
-            try {
-                initAudio();
-                if (!audioCtx) return;
-                const now = audioCtx.currentTime;
+        /* ----------------------------------------------------
+           3. 全局狀態與設定
+        ---------------------------------------------------- */
+        let gameMode = 'single'; // 'single' | 'dual'
+        let mainCategory = '月份'; // '月份' | '季節'
+        let subCategory = '不分類';
+        let timeLimit = 60; // 60, 180, 300
 
-                if (type === 'click') {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(400, now);
-                    osc.frequency.exponentialRampToValueAtTime(120, now + 0.05);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(now);
-                    osc.stop(now + 0.05);
-                } 
-                else if (type === 'correct') {
-                    const freqs = [523.25, 659.25, 783.99, 1046.50];
-                    freqs.forEach((freq, idx) => {
-                        const osc = audioCtx.createOscillator();
-                        const gain = audioCtx.createGain();
-                        osc.type = 'sine';
-                        osc.frequency.value = freq;
-                        gain.gain.setValueAtTime(0, now + idx * 0.06);
-                        gain.gain.linearRampToValueAtTime(0.2, now + idx * 0.06 + 0.02);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.25);
-                        osc.connect(gain);
-                        gain.connect(audioCtx.destination);
-                        osc.start(now + idx * 0.06);
-                        osc.stop(now + idx * 0.06 + 0.25);
-                    });
-                } 
-                else if (type === 'wrong') {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(160, now);
-                    osc.frequency.linearRampToValueAtTime(90, now + 0.25);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(now);
-                    osc.stop(now + 0.25);
-                }
-                else if (type === 'bonus') {
-                    const freqs = [587.33, 880, 1174.66];
-                    freqs.forEach((freq, idx) => {
-                        const osc = audioCtx.createOscillator();
-                        const gain = audioCtx.createGain();
-                        osc.type = 'triangle';
-                        osc.frequency.value = freq;
-                        gain.gain.setValueAtTime(0.25, now + idx * 0.05);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.2);
-                        osc.connect(gain);
-                        gain.connect(audioCtx.destination);
-                        osc.start(now + idx * 0.05);
-                        osc.stop(now + idx * 0.05 + 0.2);
-                    });
-                }
-                else if (type === 'victory') {
-                    const notes = [523.25, 659.25, 783.99, 880, 1046.50, 1318.51];
-                    notes.forEach((freq, idx) => {
-                        const osc = audioCtx.createOscillator();
-                        const gain = audioCtx.createGain();
-                        osc.type = 'sine';
-                        osc.frequency.value = freq;
-                        gain.gain.setValueAtTime(0, now + idx * 0.08);
-                        gain.gain.linearRampToValueAtTime(0.3, now + idx * 0.08 + 0.02);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.4);
-                        osc.connect(gain);
-                        gain.connect(audioCtx.destination);
-                        osc.start(now + idx * 0.08);
-                        osc.stop(now + idx * 0.08 + 0.4);
-                    });
-                }
-            } catch (e) {
-                console.log("Play sound error:", e);
-            }
-        }
+        // 遊戲運行狀態
+        let questionPool = [];
+        let currentQuestion = null;
+        let currentOptions = [];
+        let currentPhase = 1; // 1: 意象辨識, 2: 文學作品應用
+        let globalTimerInterval = null;
+        let remainingTime = 60;
+        let phaseTimerTimeout = null;
 
+        // 單人模式分數
+        let singleScore = 0;
+        let singleStreak = 0;
 
-        /* ==========================================================================
-           3. 遊戲全域狀態變數
-           ========================================================================== */
-        let gameState = {
-            mode: 'single', // 'single' | 'battle'
-            totalTime: 60, // 60, 180, 300
-            mainCategory: 'season', // 'month' | 'season' (預設季節)
-            subCategory: '不分類', // '不分類', '月份', '節日節氣', '風', '動物', '植物', '天象及人類活動'
-            activeBank: [],
-            
-            // 全域時間倒數
-            overallTimer: null,
-            timeRemaining: 60,
-            
-            // 當前題目與階段
-            currentQuestion: null,
-            currentPhase: 1, // 1: 意象辨識, 2: 文學作品應用
-            stageTimer: null,
-            correctOptIndex: 0,
-            
-            // 單人模式狀態
-            single: {
-                score: 0,
-                streak: 0, // 正數連對，負數連錯
-                answered: false
-            },
+        // 兩人對戰分數與答題狀態
+        let redScore = 0;
+        let redStreak = 0;
+        let redAnswered = false;
+        let redAnswerIdx = null;
+        let redTime = 0;
 
-            // 兩人模式狀態
-            battle: {
-                red: { score: 0, streak: 0, answer: null, timestamp: 0 },
-                white: { score: 0, streak: 0, answer: null, timestamp: 0 }
-            }
+        let whiteScore = 0;
+        let whiteStreak = 0;
+        let whiteAnswered = false;
+        let whiteAnswerIdx = null;
+        let whiteTime = 0;
+
+        /* ----------------------------------------------------
+           4. 頁面初始化與設定選項選擇
+        ---------------------------------------------------- */
+        window.onload = function() {
+            renderSubCatButtons();
+            selectGameMode('single');
+            selectMainCategory('月份');
+            selectTimeLimit(60);
         };
 
-
-        /* ==========================================================================
-           4. 選單操作與題庫過濾防呆
-           ========================================================================== */
-        function selectMode(m) {
-            playSound('click');
-            gameState.mode = m;
-            document.getElementById('modeSingleBtn').className = m === 'single' 
-                ? 'py-3 px-4 rounded border-2 border-vermilion bg-red-50 text-vermilion font-kai text-base md:text-lg font-bold btn-touch'
-                : 'py-3 px-4 rounded border-2 border-ink-800 font-kai text-base md:text-lg font-bold bg-riceDark hover:bg-amber-100 btn-touch';
-            
-            document.getElementById('modeBattleBtn').className = m === 'battle'
-                ? 'py-3 px-4 rounded border-2 border-vermilion bg-red-50 text-vermilion font-kai text-base md:text-lg font-bold btn-touch'
-                : 'py-3 px-4 rounded border-2 border-ink-800 font-kai text-base md:text-lg font-bold bg-riceDark hover:bg-amber-100 btn-touch';
-            
-            checkSubCatVisibility();
+        function renderSubCatButtons() {
+            const group = document.getElementById('subCatBtnGroup');
+            group.innerHTML = '';
+            SUB_CATEGORIES.forEach(sub => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `px-3 py-1.5 border border-ink rounded-lg font-bold text-sm ink-button ${sub === subCategory ? 'bg-bamboo text-white' : 'bg-xuanDark text-ink'}`;
+                btn.innerText = sub;
+                btn.onclick = () => selectSubCategory(sub);
+                group.appendChild(btn);
+            });
         }
 
-        function selectTime(t) {
+        function selectGameMode(mode) {
             playSound('click');
-            gameState.totalTime = t;
-            document.querySelectorAll('.time-btn').forEach(btn => {
-                if (parseInt(btn.dataset.time) === t) {
-                    btn.className = 'time-btn py-2 rounded border-2 border-vermilion bg-red-50 text-vermilion text-center font-kai font-bold btn-touch';
+            gameMode = mode;
+            const singleBtn = document.getElementById('modeSingleBtn');
+            const dualBtn = document.getElementById('modeDualBtn');
+            if (mode === 'single') {
+                singleBtn.className = "p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-vermilion text-white ink-button";
+                dualBtn.className = "p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-xuanDark text-ink ink-button";
+                if (mainCategory === '季節') document.getElementById('subCatContainer').classList.remove('hidden');
+            } else {
+                singleBtn.className = "p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-xuanDark text-ink ink-button";
+                dualBtn.className = "p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-vermilion text-white ink-button";
+                document.getElementById('subCatContainer').classList.add('hidden');
+            }
+        }
+
+        function selectMainCategory(cat) {
+            playSound('click');
+            mainCategory = cat;
+            const monthBtn = document.getElementById('catMonthBtn');
+            const seasonBtn = document.getElementById('catSeasonBtn');
+            if (cat === '月份') {
+                monthBtn.className = "p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-bamboo text-white ink-button";
+                seasonBtn.className = "p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-xuanDark text-ink ink-button";
+                document.getElementById('subCatContainer').classList.add('hidden');
+            } else {
+                monthBtn.className = "p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-xuanDark text-ink ink-button";
+                seasonBtn.className = "p-3 sm:p-4 text-center border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-bamboo text-white ink-button";
+                if (gameMode === 'single') document.getElementById('subCatContainer').classList.remove('hidden');
+            }
+        }
+
+        function selectSubCategory(sub) {
+            playSound('click');
+            subCategory = sub;
+            renderSubCatButtons();
+        }
+
+        function selectTimeLimit(seconds) {
+            playSound('click');
+            timeLimit = seconds;
+            [60, 180, 300].forEach(s => {
+                const btn = document.getElementById(`time${s}Btn`);
+                if (s === seconds) {
+                    btn.className = "p-2 sm:p-3 text-center border-2 border-ink rounded-lg font-bold bg-gold text-white ink-button";
                 } else {
-                    btn.className = 'time-btn py-2 rounded border border-ink-700 text-center font-kai font-bold bg-white btn-touch';
+                    btn.className = "p-2 sm:p-3 text-center border-2 border-ink rounded-lg font-bold bg-xuanDark text-ink ink-button";
                 }
             });
         }
 
-        function selectCategory(c) {
-            playSound('click');
-            gameState.mainCategory = c;
-            document.getElementById('catMonthBtn').className = c === 'month'
-                ? 'py-2.5 rounded border-2 border-vermilion bg-red-50 text-vermilion font-kai font-bold btn-touch'
-                : 'py-2.5 rounded border border-ink-700 font-kai font-bold bg-white hover:bg-amber-50 btn-touch';
-
-            document.getElementById('catSeasonBtn').className = c === 'season'
-                ? 'py-2.5 rounded border-2 border-vermilion bg-red-50 text-vermilion font-kai font-bold btn-touch'
-                : 'py-2.5 rounded border border-ink-700 font-kai font-bold bg-white hover:bg-amber-50 btn-touch';
-
-            checkSubCatVisibility();
-        }
-
-        function selectSubCat(sub) {
-            playSound('click');
-            gameState.subCategory = sub;
-            document.querySelectorAll('.subcat-btn').forEach(btn => {
-                if (btn.dataset.sub === sub) {
-                    btn.className = 'subcat-btn py-1.5 px-2 rounded border-2 border-vermilion bg-red-50 text-vermilion font-kai font-bold';
-                } else {
-                    btn.className = 'subcat-btn py-1.5 px-2 rounded border border-ink-700 bg-white font-kai';
-                }
-            });
-        }
-
-        function checkSubCatVisibility() {
-            const subSection = document.getElementById('subCatSection');
-            if (gameState.mode === 'single' && gameState.mainCategory === 'season') {
-                subSection.classList.remove('hidden');
+        /* ----------------------------------------------------
+           5. 題庫與干擾項生成防呆演算法 (嚴格保證不空值)
+        ---------------------------------------------------- */
+        function initQuestionPool() {
+            const rawPool = mainCategory === '月份' ? MONTH_QUESTIONS : SEASON_QUESTIONS;
+            if (mainCategory === '季節' && gameMode === 'single' && subCategory !== '不分類') {
+                questionPool = rawPool.filter(item => item[0] === subCategory);
             } else {
-                subSection.classList.add('hidden');
+                questionPool = [...rawPool];
             }
+            // 隨機打亂
+            questionPool.sort(() => Math.random() - 0.5);
         }
 
-        // 核心題庫篩選（包含防呆 fallback 機制）
-        function getFilteredBank() {
-            let bank = [];
-            if (gameState.mainCategory === 'month') {
-                bank = [...MONTH_DATA];
+        function getNextQuestion() {
+            if (questionPool.length === 0) {
+                initQuestionPool();
+            }
+            return questionPool.pop();
+        }
+
+        // 隨機選出相應階層之錯誤干擾項
+        function generateOptions(correctItem, phase) {
+            const fullList = mainCategory === '月份' ? MONTH_QUESTIONS : SEASON_QUESTIONS;
+            const correctGroup = correctItem[4]; // 答案分組
+            
+            // 挑選答案分組不同的題目做為錯誤選項
+            let validDistractors = fullList.filter(item => item[4] !== correctGroup);
+            if (validDistractors.length === 0) {
+                validDistractors = fullList.filter(item => item[1] !== correctItem[1]);
+            }
+            
+            const distractorItem = validDistractors[Math.floor(Math.random() * validDistractors.length)];
+            
+            const correctText = (phase === 1) ? correctItem[2] : correctItem[3];
+            const distractorText = (phase === 1) ? distractorItem[2] : distractorItem[3];
+
+            // 隨機擺放位置 (0 或 1)
+            const isCorrectIndexZero = Math.random() < 0.5;
+            if (isCorrectIndexZero) {
+                return {
+                    options: [correctText, distractorText],
+                    correctIndex: 0
+                };
             } else {
-                // 季節題
-                if (gameState.mode === 'single' && gameState.subCategory && gameState.subCategory !== '不分類') {
-                    bank = SEASON_DATA.filter(item => item.subCat === gameState.subCategory);
-                } else {
-                    bank = [...SEASON_DATA];
-                }
+                return {
+                    options: [distractorText, correctText],
+                    correctIndex: 1
+                };
             }
-
-            // 終極防呆：若篩選為空，自動備援降級使用完整庫，絕對不回傳空陣列
-            if (!bank || bank.length === 0) {
-                bank = gameState.mainCategory === 'month' ? [...MONTH_DATA] : [...SEASON_DATA];
-            }
-            if (!bank || bank.length === 0) {
-                bank = [...MONTH_DATA, ...SEASON_DATA];
-            }
-            return bank;
         }
 
-        // 初始化預設值選取
-        selectMode('single');
-        selectTime(60);
-        selectCategory('season');
-        selectSubCat('不分類');
-
-
-        /* ==========================================================================
-           5. 開始遊戲與主循環流程
-           ========================================================================== */
+        /* ----------------------------------------------------
+           6. 遊戲流程控制 (開始、倒數、返回)
+        ---------------------------------------------------- */
         function startGame() {
-            initAudio();
             playSound('click');
+            initQuestionPool();
 
-            // 1. 取得並驗證篩選題庫
-            gameState.activeBank = getFilteredBank();
-
-            // 2. 重設分數與狀態
-            gameState.timeRemaining = gameState.totalTime;
-            gameState.single = { score: 0, streak: 0, answered: false };
-            gameState.battle = {
-                red: { score: 0, streak: 0, answer: null, timestamp: 0 },
-                white: { score: 0, streak: 0, answer: null, timestamp: 0 }
-            };
-
-            // 3. 切換顯示介面
-            document.getElementById('setupScreen').classList.add('hidden');
-            document.getElementById('resultScreen').classList.add('hidden');
-
-            if (gameState.mode === 'single') {
-                document.getElementById('singleGameScreen').classList.remove('hidden');
-                document.getElementById('singleGameScreen').classList.add('flex');
-                document.getElementById('singleScoreDisplay').innerText = '0';
-                document.getElementById('singleStreakDisplay').innerText = '0';
-            } else {
-                document.getElementById('battleGameScreen').classList.remove('hidden');
-                document.getElementById('battleGameScreen').classList.add('flex');
-                document.getElementById('redScore').innerText = '0';
-                document.getElementById('whiteScore').innerText = '0';
-                document.getElementById('redStreak').innerText = '';
-                document.getElementById('whiteStreak').innerText = '';
+            if (questionPool.length === 0) {
+                alert("該分類下暫無題目！");
+                return;
             }
 
-            // 4. 啟動總時間倒數計時器
-            startOverallTimer();
+            // 重置分數與計時
+            remainingTime = timeLimit;
+            singleScore = 0; singleStreak = 0;
+            redScore = 0; redStreak = 0;
+            whiteScore = 0; whiteStreak = 0;
 
-            // 5. 立即隨機載入第一階段題目並渲染至 DOM
-            loadNewQuestion();
-        }
+            document.getElementById('setupScreen').classList.add('hidden');
+            document.getElementById('homeBtn').classList.remove('hidden');
 
-        function startOverallTimer() {
-            clearInterval(gameState.overallTimer);
-            updateTimerDisplay();
+            if (gameMode === 'single') {
+                document.getElementById('singleGameScreen').classList.remove('hidden');
+                document.getElementById('dualGameScreen').classList.add('hidden');
+                document.getElementById('singleScore').innerText = '0';
+                document.getElementById('singleStreak').innerText = '0';
+                document.getElementById('singleModeBadge').innerText = `${mainCategory}題 - ${mainCategory==='季節'?subCategory:'全部'}`;
+                startSingleQuestion();
+            } else {
+                document.getElementById('singleGameScreen').classList.add('hidden');
+                document.getElementById('dualGameScreen').classList.remove('hidden');
+                document.getElementById('redScore').innerText = '0';
+                document.getElementById('redStreak').innerText = '0';
+                document.getElementById('whiteScore').innerText = '0';
+                document.getElementById('whiteStreak').innerText = '0';
+                document.getElementById('dualModeBadge').innerText = `兩人對戰 - ${mainCategory}題`;
+                startDualQuestion();
+            }
 
-            gameState.overallTimer = setInterval(() => {
-                gameState.timeRemaining--;
-                updateTimerDisplay();
-
-                if (gameState.timeRemaining <= 0) {
-                    clearInterval(gameState.overallTimer);
+            // 啟動總計時器
+            if (globalTimerInterval) clearInterval(globalTimerInterval);
+            globalTimerInterval = setInterval(() => {
+                remainingTime--;
+                document.getElementById('singleGlobalTimer').innerText = remainingTime;
+                document.getElementById('dualGlobalTimer').innerText = remainingTime;
+                if (remainingTime <= 0) {
                     endGame();
                 }
             }, 1000);
         }
 
-        function updateTimerDisplay() {
-            const mins = Math.floor(gameState.timeRemaining / 60);
-            const secs = gameState.timeRemaining % 60;
-            const formatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            if (gameState.mode === 'single') {
-                document.getElementById('singleTimerDisplay').innerText = formatted;
+        function returnToSetup() {
+            playSound('click');
+            if (globalTimerInterval) clearInterval(globalTimerInterval);
+            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
+
+            document.getElementById('setupScreen').classList.remove('hidden');
+            document.getElementById('singleGameScreen').classList.add('hidden');
+            document.getElementById('dualGameScreen').classList.add('hidden');
+            document.getElementById('homeBtn').classList.add('hidden');
+            document.getElementById('gameOverModal').classList.add('hidden');
+        }
+
+        function endGame() {
+            playSound('gameover');
+            if (globalTimerInterval) clearInterval(globalTimerInterval);
+            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
+
+            const scoreBox = document.getElementById('gameOverScoreBox');
+            scoreBox.innerHTML = '';
+
+            if (gameMode === 'single') {
+                document.getElementById('gameOverTitle').innerText = "🏆 單人挑戰結算";
+                scoreBox.innerHTML = `
+                    <div class="text-lg font-bold">最終總得分：<span class="text-vermilion text-3xl font-black">${singleScore}</span> 分</div>
+                    <div class="text-sm text-gray-600">詩情畫意，融會貫通！</div>
+                `;
             } else {
-                document.getElementById('battleTimerDisplay').innerText = formatted;
+                document.getElementById('gameOverTitle').innerText = "⚔️ 兩人對戰結算";
+                let winnerText = "";
+                if (redScore > whiteScore) {
+                    winnerText = `<div class="text-xl font-bold text-vermilion mb-1">🎉 🔴 紅隊 榮獲勝利！</div>`;
+                } else if (whiteScore > redScore) {
+                    winnerText = `<div class="text-xl font-bold text-ink mb-1">🎉 ⚪ 白隊 榮獲勝利！</div>`;
+                } else {
+                    winnerText = `<div class="text-xl font-bold text-gold mb-1">🤝 兩隊旗鼓相當，平手！</div>`;
+                }
+
+                scoreBox.innerHTML = `
+                    ${winnerText}
+                    <div class="grid grid-cols-2 gap-2 text-base font-bold border-t border-paperBorder pt-2">
+                        <div class="text-vermilion">🔴 紅隊得分：<span class="text-2xl">${redScore}</span></div>
+                        <div class="text-ink">⚪ 白隊得分：<span class="text-2xl">${whiteScore}</span></div>
+                    </div>
+                `;
             }
+
+            document.getElementById('gameOverModal').classList.remove('hidden');
         }
 
-
-        /* ==========================================================================
-           6. 題目隨機生成與 DOM 強制渲染
-           ========================================================================== */
-        function loadNewQuestion() {
-            // 安全抽取隨機題目
-            const bank = gameState.activeBank && gameState.activeBank.length > 0 ? gameState.activeBank : SEASON_DATA;
-            const randIdx = Math.floor(Math.random() * bank.length);
-            gameState.currentQuestion = bank[randIdx];
-
-            // 啟動第一階段
-            setupPhase1UI();
+        /* ----------------------------------------------------
+           7. 【一人遊戲】核心邏輯
+        ---------------------------------------------------- */
+        function startSingleQuestion() {
+            currentQuestion = getNextQuestion();
+            currentPhase = 1;
+            renderSinglePhase();
         }
 
-        // 生成干擾選項（要求同題庫大類、但答案分組 `group` 必須不同）
-        function getRandomDistractor(correctItem, stageType) {
-            const fullPool = gameState.mainCategory === 'month' ? MONTH_DATA : SEASON_DATA;
-            const validPool = fullPool.filter(item => item.group !== correctItem.group);
+        function renderSinglePhase() {
+            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
 
-            let picked = null;
-            if (validPool.length > 0) {
-                picked = validPool[Math.floor(Math.random() * validPool.length)];
+            // 隱藏回饋與下一題按鈕
+            document.getElementById('singleFeedbackBox').classList.add('hidden');
+            document.getElementById('singleNextBtn').classList.add('hidden');
+
+            const titleEl = document.getElementById('singleQuestionTitle');
+            const subTag = document.getElementById('singleSubGroupTag');
+            const phaseBadge = document.getElementById('singlePhaseBadge');
+
+            subTag.innerText = `【類別：${currentQuestion[0]}】`;
+            titleEl.innerText = currentQuestion[1]; // 單題題目
+
+            if (currentPhase === 1) {
+                phaseBadge.innerText = "第一階段：意象辨識 (3秒)";
+                phaseBadge.className = "inline-block bg-gold text-white px-3 py-1 rounded-full text-xs sm:text-sm";
             } else {
-                picked = fullPool[Math.floor(Math.random() * fullPool.length)];
+                phaseBadge.innerText = "第二階段：文學作品應用 (3秒)";
+                phaseBadge.className = "inline-block bg-bamboo text-white px-3 py-1 rounded-full text-xs sm:text-sm";
             }
 
-            return stageType === 'stage1' ? picked.ans : picked.poem;
-        }
+            // 生成選項
+            const generated = generateOptions(currentQuestion, currentPhase);
+            currentOptions = generated.options;
+            currentQuestion.correctIdx = generated.correctIndex;
 
-        // 3秒倒數動畫控制
-        function startStageTimer(seconds, onTimeout) {
-            clearTimeout(gameState.stageTimer);
-            const bar = gameState.mode === 'single' 
-                ? document.getElementById('singleTimerBar') 
-                : document.getElementById('battleTimerBar');
+            // 渲染選項按鈕
+            for (let i = 0; i < 2; i++) {
+                const btn = document.getElementById(`singleOpt${i}`);
+                const txt = document.getElementById(`singleOptText${i}`);
+                btn.disabled = false;
+                btn.className = "p-4 border-2 border-ink rounded-xl font-bold text-base sm:text-lg bg-xuan hover:bg-xuanDark text-ink text-left ink-button flex items-center justify-between";
+                txt.innerText = (i === 0 ? "A. " : "B. ") + currentOptions[i];
+            }
 
-            bar.classList.remove('timer-bar-active');
-            void bar.offsetWidth; // 重置 CSS 動畫
-            bar.classList.add('timer-bar-active');
-
-            gameState.stageTimer = setTimeout(() => {
-                onTimeout();
-            }, seconds * 1000);
-        }
-
-        function stopStageTimer() {
-            clearTimeout(gameState.stageTimer);
-            const bar = gameState.mode === 'single' 
-                ? document.getElementById('singleTimerBar') 
-                : document.getElementById('battleTimerBar');
-            bar.classList.remove('timer-bar-active');
-        }
-
-
-        /* ==========================================================================
-           7. 單人模式流程與加減分
-           ========================================================================== */
-        function setupPhase1UI() {
-            gameState.currentPhase = 1;
-            gameState.single.answered = false;
-
-            const q = gameState.currentQuestion;
-
-            // DOM 強制賦值寫入
-            document.getElementById('singleStageTag').innerText = '第一階段：意象辨識';
-            document.getElementById('singleCategoryTag').innerText = `${gameState.mainCategory === 'month' ? '月份題' : '季節題'} [${q.subCat}]`;
-            document.getElementById('singleQuestionSub').innerText = '請辨識以下詞彙對應之時令：';
-            document.getElementById('singleQuestionText').innerText = q.q;
-
-            // 選項生成 (A / B 左右隨機)
-            const correctOpt = q.ans;
-            const wrongOpt = getRandomDistractor(q, 'stage1');
-            const opts = Math.random() < 0.5 ? [correctOpt, wrongOpt] : [wrongOpt, correctOpt];
-            
-            gameState.correctOptIndex = opts.indexOf(correctOpt);
-
-            const btn0 = document.getElementById('singleOpt0');
-            const btn1 = document.getElementById('singleOpt1');
-            btn0.innerText = opts[0];
-            btn1.innerText = opts[1];
-            btn0.disabled = false;
-            btn1.disabled = false;
-            btn0.className = 'py-4 px-4 bg-white border-2 border-ink-800 hover:bg-amber-100 rounded text-lg font-bold font-kai btn-touch shadow';
-            btn1.className = 'py-4 px-4 bg-white border-2 border-ink-800 hover:bg-amber-100 rounded text-lg font-bold font-kai btn-touch shadow';
-
-            document.getElementById('singleFeedbackArea').classList.add('hidden');
-            document.getElementById('singleNextBtn').classList.add('hidden');
-            document.getElementById('singleOptionsArea').classList.remove('hidden');
-
-            startStageTimer(3, handleSingleTimeout);
-        }
-
-        function setupPhase2UI() {
-            gameState.currentPhase = 2;
-            gameState.single.answered = false;
-
-            const q = gameState.currentQuestion;
-
-            // DOM 賦值 (以剛剛作答的 q 單題為題目)
-            document.getElementById('singleStageTag').innerText = '第二階段：文學作品應用';
-            document.getElementById('singleQuestionSub').innerText = `【${q.q}】請找出相應之詩詞作品：`;
-            document.getElementById('singleQuestionText').innerText = q.q;
-
-            // 詩詞選項
-            const correctOpt = q.poem;
-            const wrongOpt = getRandomDistractor(q, 'stage2');
-            const opts = Math.random() < 0.5 ? [correctOpt, wrongOpt] : [wrongOpt, correctOpt];
-
-            gameState.correctOptIndex = opts.indexOf(correctOpt);
-
-            const btn0 = document.getElementById('singleOpt0');
-            const btn1 = document.getElementById('singleOpt1');
-            btn0.innerText = opts[0];
-            btn1.innerText = opts[1];
-            btn0.disabled = false;
-            btn1.disabled = false;
-            btn0.className = 'py-3 px-3 bg-white border-2 border-ink-800 hover:bg-amber-100 rounded text-sm sm:text-base font-serif btn-touch shadow text-left leading-relaxed';
-            btn1.className = 'py-3 px-3 bg-white border-2 border-ink-800 hover:bg-amber-100 rounded text-sm sm:text-base font-serif btn-touch shadow text-left leading-relaxed';
-
-            document.getElementById('singleFeedbackArea').classList.add('hidden');
-            document.getElementById('singleNextBtn').classList.add('hidden');
-            document.getElementById('singleOptionsArea').classList.remove('hidden');
-
-            startStageTimer(3, handleSingleTimeout);
+            // 啟動 3 秒倒數動畫與定時器
+            resetTimerBar('singleTimerBar');
+            phaseTimerTimeout = setTimeout(() => {
+                handleSingleTimeout();
+            }, 3000);
         }
 
         function handleSingleAnswer(selectedIdx) {
-            if (gameState.single.answered) return;
-            gameState.single.answered = true;
-            stopStageTimer();
+            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
+            disableSingleOptions();
 
-            const isCorrect = (selectedIdx === gameState.correctOptIndex);
-            processSingleResult(isCorrect, selectedIdx);
+            const isCorrect = (selectedIdx === currentQuestion.correctIdx);
+            let pointDelta = 0;
+
+            if (isCorrect) {
+                playSound('correct');
+                singleStreak++;
+                pointDelta = singleStreak;
+                singleScore += pointDelta;
+            } else {
+                playSound('wrong');
+                singleStreak = (singleStreak <= 0) ? singleStreak - 1 : -1;
+                pointDelta = singleStreak;
+                singleScore += pointDelta;
+            }
+
+            document.getElementById('singleScore').innerText = singleScore;
+            document.getElementById('singleStreak').innerText = Math.max(0, singleStreak);
+
+            showSingleFeedback(isCorrect, pointDelta, selectedIdx);
         }
 
         function handleSingleTimeout() {
-            if (gameState.single.answered) return;
-            gameState.single.answered = true;
-            stopStageTimer();
+            disableSingleOptions();
+            playSound('wrong');
 
-            processSingleResult(false, -1);
+            singleStreak = (singleStreak <= 0) ? singleStreak - 1 : -1;
+            const pointDelta = singleStreak;
+            singleScore += pointDelta;
+
+            document.getElementById('singleScore').innerText = singleScore;
+            document.getElementById('singleStreak').innerText = Math.max(0, singleStreak);
+
+            showSingleFeedback(false, pointDelta, -1);
         }
 
-        function processSingleResult(isCorrect, selectedIdx) {
-            const btn0 = document.getElementById('singleOpt0');
-            const btn1 = document.getElementById('singleOpt1');
-            btn0.disabled = true;
-            btn1.disabled = true;
-
-            // 視覺高亮顏色
-            if (gameState.correctOptIndex === 0) btn0.classList.add('bg-green-100', 'border-green-600');
-            if (gameState.correctOptIndex === 1) btn1.classList.add('bg-green-100', 'border-green-600');
-
-            if (!isCorrect && selectedIdx >= 0) {
-                if (selectedIdx === 0) btn0.classList.add('bg-red-100', 'border-red-600');
-                if (selectedIdx === 1) btn1.classList.add('bg-red-100', 'border-red-600');
+        function disableSingleOptions() {
+            for (let i = 0; i < 2; i++) {
+                document.getElementById(`singleOpt${i}`).disabled = true;
             }
+        }
 
-            // 加減分演算法 (答對連續累加，答錯連續累減)
-            let delta = 0;
-            if (isCorrect) {
-                playSound('correct');
-                if (gameState.single.streak < 0) gameState.single.streak = 0;
-                gameState.single.streak++;
-                delta = gameState.single.streak;
+        function showSingleFeedback(isCorrect, points, selectedIdx) {
+            const feedbackBox = document.getElementById('singleFeedbackBox');
+            const resultEl = document.getElementById('singleFeedbackResult');
+            const pointsEl = document.getElementById('singleFeedbackPoints');
+            const quoteEl = document.getElementById('singleFeedbackQuote');
+
+            feedbackBox.classList.remove('hidden');
+
+            if (selectedIdx === -1) {
+                resultEl.innerText = "⏰ 作答超時！";
+                resultEl.className = "font-extrabold text-lg text-vermilion";
+            } else if (isCorrect) {
+                resultEl.innerText = "🎉 回答正確！";
+                resultEl.className = "font-extrabold text-lg text-bamboo";
             } else {
-                playSound('wrong');
-                if (gameState.single.streak > 0) gameState.single.streak = 0;
-                gameState.single.streak--;
-                delta = gameState.single.streak; // -1, -2, -3...
+                resultEl.innerText = "❌ 回答錯誤！";
+                resultEl.className = "font-extrabold text-lg text-vermilion";
             }
 
-            gameState.single.score += delta;
-            document.getElementById('singleScoreDisplay').innerText = gameState.single.score;
-            document.getElementById('singleStreakDisplay').innerText = 
-                gameState.single.streak > 0 ? `🔥連對 ${gameState.single.streak}` : (gameState.single.streak < 0 ? `❄️連錯 ${Math.abs(gameState.single.streak)}` : '0');
+            pointsEl.innerText = `得分：${points > 0 ? '+' + points : points}`;
+            quoteEl.innerText = `名句出處：${currentQuestion[3]}`;
 
-            // 回饋說明
-            const fbArea = document.getElementById('singleFeedbackArea');
-            const fbTitle = document.getElementById('singleFeedbackTitle');
-            const fbExp = document.getElementById('singleFeedbackExp');
-            const fbScore = document.getElementById('singleScoreChange');
-
-            fbArea.classList.remove('hidden');
-            if (isCorrect) {
-                fbTitle.innerText = '✨ 回答正確！';
-                fbTitle.className = 'font-bold text-base font-kai text-green-700';
-            } else {
-                fbTitle.innerText = selectedIdx === -1 ? '⏰ 作答超時！' : '❌ 回答錯誤！';
-                fbTitle.className = 'font-bold text-base font-kai text-red-700';
+            // 高亮正確與錯誤按鈕
+            for (let i = 0; i < 2; i++) {
+                const btn = document.getElementById(`singleOpt${i}`);
+                if (i === currentQuestion.correctIdx) {
+                    btn.classList.add('bg-green-100', 'border-bamboo');
+                } else if (i === selectedIdx && !isCorrect) {
+                    btn.classList.add('bg-red-100', 'border-vermilion');
+                }
             }
 
-            const q = gameState.currentQuestion;
-            fbExp.innerHTML = `<strong>【正確答案與出處】</strong> ${q.q} ➔ 應為 <strong>${q.ans}</strong><br><span class="text-xs text-gray-700 mt-1 block">${q.poem}</span>`;
-            fbScore.innerText = `得分變動：${delta > 0 ? '+' + delta : delta} 分 (累積: ${gameState.single.score} 分)`;
-
-            if (gameState.currentPhase === 1) {
-                // 第一階段結束後自動平滑過渡至第二階段 (約1.4秒)
+            // 自動推進或顯示按鈕
+            if (currentPhase === 1) {
                 setTimeout(() => {
-                    if (gameState.timeRemaining > 0) setupPhase2UI();
-                }, 1400);
+                    if (remainingTime > 0) {
+                        currentPhase = 2;
+                        renderSinglePhase();
+                    }
+                }, 1800);
             } else {
-                // 第二階段結束後顯示下一題按鈕
                 document.getElementById('singleNextBtn').classList.remove('hidden');
             }
         }
 
         function nextSingleQuestion() {
             playSound('click');
-            if (gameState.timeRemaining > 0) {
-                loadNewQuestion();
-            } else {
-                endGame();
+            if (remainingTime > 0) {
+                startSingleQuestion();
             }
         }
 
-
-        /* ==========================================================================
-           8. 兩人對戰模式流程
-           ========================================================================== */
-        function setupPhase1UI_Battle() {
-            gameState.currentPhase = 1;
-            resetBattleTeamState();
-
-            const q = gameState.currentQuestion;
-
-            document.getElementById('battleStageTag').innerText = '第一階段：意象辨識';
-            document.getElementById('battleQuestionSub').innerText = '請雙方於 3 秒內搶答對應之時令：';
-            document.getElementById('battleQuestionText').innerText = q.q;
-
-            const correctOpt = q.ans;
-            const wrongOpt = getRandomDistractor(q, 'stage1');
-            const opts = Math.random() < 0.5 ? [correctOpt, wrongOpt] : [wrongOpt, correctOpt];
-
-            gameState.correctOptIndex = opts.indexOf(correctOpt);
-
-            setupBattleButtons(opts, 'stage1');
-            startStageTimer(3, handleBattleTimeout);
+        /* ----------------------------------------------------
+           8. 【兩人對戰模式】核心邏輯
+        ---------------------------------------------------- */
+        function startDualQuestion() {
+            currentQuestion = getNextQuestion();
+            currentPhase = 1;
+            renderDualPhase();
         }
 
-        function setupPhase2UI_Battle() {
-            gameState.currentPhase = 2;
-            resetBattleTeamState();
+        function renderDualPhase() {
+            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
 
-            const q = gameState.currentQuestion;
+            redAnswered = false; redAnswerIdx = null; redTime = 0;
+            whiteAnswered = false; whiteAnswerIdx = null; whiteTime = 0;
 
-            document.getElementById('battleStageTag').innerText = '第二階段：文學作品應用';
-            document.getElementById('battleQuestionSub').innerText = `【${q.q}】請雙方於 3 秒內找出相應詩詞：`;
-            document.getElementById('battleQuestionText').innerText = q.q;
-
-            const correctOpt = q.poem;
-            const wrongOpt = getRandomDistractor(q, 'stage2');
-            const opts = Math.random() < 0.5 ? [correctOpt, wrongOpt] : [wrongOpt, correctOpt];
-
-            gameState.correctOptIndex = opts.indexOf(correctOpt);
-
-            setupBattleButtons(opts, 'stage2');
-            startStageTimer(3, handleBattleTimeout);
-        }
-
-        function resetBattleTeamState() {
-            gameState.battle.red.answer = null;
-            gameState.battle.red.timestamp = 0;
-            gameState.battle.white.answer = null;
-            gameState.battle.white.timestamp = 0;
-
-            document.getElementById('redStatus').innerText = '⏳ 等待作答...';
-            document.getElementById('redStatus').className = 'text-xs font-bold text-gray-600 mb-2 min-h-[20px] font-kai';
             document.getElementById('redFeedback').classList.add('hidden');
-
-            document.getElementById('whiteStatus').innerText = '⏳ 等待作答...';
-            document.getElementById('whiteStatus').className = 'text-xs font-bold text-gray-600 mb-2 min-h-[20px] font-kai';
             document.getElementById('whiteFeedback').classList.add('hidden');
+            document.getElementById('dualQuoteBox').classList.add('hidden');
+            document.getElementById('dualNextBtn').classList.add('hidden');
 
-            document.getElementById('battleControlArea').classList.add('hidden');
+            document.getElementById('dualSubGroupTag').innerText = `【競速類別：${currentQuestion[0]}】`;
+            document.getElementById('dualQuestionTitle').innerText = currentQuestion[1];
+            document.getElementById('dualPhaseBadge').innerText = currentPhase === 1 ? "第一階段：意象辨識" : "第二階段：文學作品應用";
+
+            const generated = generateOptions(currentQuestion, currentPhase);
+            currentOptions = generated.options;
+            currentQuestion.correctIdx = generated.correctIndex;
+
+            // 渲染紅隊與白隊選項
+            for (let i = 0; i < 2; i++) {
+                const rBtn = document.getElementById(`redOpt${i}`);
+                const rTxt = document.getElementById(`redOptText${i}`);
+                rBtn.disabled = false;
+                rBtn.className = "p-2.5 border border-ink rounded-lg font-bold text-xs sm:text-sm bg-xuan hover:bg-xuanDark text-left ink-button";
+                rTxt.innerText = (i === 0 ? "A. " : "B. ") + currentOptions[i];
+
+                const wBtn = document.getElementById(`whiteOpt${i}`);
+                const wTxt = document.getElementById(`whiteOptText${i}`);
+                wBtn.disabled = false;
+                wBtn.className = "p-2.5 border border-ink rounded-lg font-bold text-xs sm:text-sm bg-xuan hover:bg-xuanDark text-left ink-button";
+                wTxt.innerText = (i === 0 ? "A. " : "B. ") + currentOptions[i];
+            }
+
+            resetTimerBar('dualTimerBar');
+            phaseTimerTimeout = setTimeout(() => {
+                revealDualAnswers();
+            }, 3000);
         }
 
-        function setupBattleButtons(opts, stageType) {
-            ['red', 'white'].forEach(team => {
-                const btn0 = document.getElementById(`${team}Opt0`);
-                const btn1 = document.getElementById(`${team}Opt1`);
-                btn0.innerText = opts[0];
-                btn1.innerText = opts[1];
-                btn0.disabled = false;
-                btn1.disabled = false;
-
-                const baseStyle = stageType === 'stage1' 
-                    ? 'py-3 px-3 bg-white border-2 hover:bg-amber-100 rounded font-bold font-kai text-base btn-touch shadow'
-                    : 'py-2 px-2 bg-white border-2 hover:bg-amber-100 rounded text-xs sm:text-sm font-serif btn-touch shadow text-left leading-tight';
-
-                const borderClass = team === 'red' ? 'border-red-800' : 'border-blue-800';
-                btn0.className = `${baseStyle} ${borderClass}`;
-                btn1.className = `${baseStyle} ${borderClass}`;
-            });
-        }
-
-        // 兩隊獨立作答觸發
-        function handleBattleAnswer(team, optIdx) {
-            if (gameState.battle[team].answer !== null) return;
-            
+        function handleDualAnswer(team, selectedIdx) {
             playSound('click');
-            gameState.battle[team].answer = optIdx;
-            gameState.battle[team].timestamp = performance.now();
+            const now = Date.now();
+            if (team === 'red' && !redAnswered) {
+                redAnswered = true;
+                redAnswerIdx = selectedIdx;
+                redTime = now;
+                for (let i = 0; i < 2; i++) document.getElementById(`redOpt${i}`).disabled = true;
+                document.getElementById(`redOpt${selectedIdx}`).classList.add('bg-amber-100');
+            } else if (team === 'white' && !whiteAnswered) {
+                whiteAnswered = true;
+                whiteAnswerIdx = selectedIdx;
+                whiteTime = now;
+                for (let i = 0; i < 2; i++) document.getElementById(`whiteOpt${i}`).disabled = true;
+                document.getElementById(`whiteOpt${selectedIdx}`).classList.add('bg-amber-100');
+            }
 
-            document.getElementById(`${team}Status`).innerText = '🔒 已提交，等待對手...';
-            document.getElementById(`${team}Status`).className = 'text-xs font-bold text-amber-700 mb-2 font-kai';
-
-            document.getElementById(`${team}Opt0`).disabled = true;
-            document.getElementById(`${team}Opt1`).disabled = true;
-
-            // 若雙方皆已作答，立即提前揭曉
-            if (gameState.battle.red.answer !== null && gameState.battle.white.answer !== null) {
-                stopStageTimer();
-                revealBattleResults();
+            // 若兩隊皆作答完畢，立即結算
+            if (redAnswered && whiteAnswered) {
+                if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
+                revealDualAnswers();
             }
         }
 
-        function handleBattleTimeout() {
-            stopStageTimer();
-            revealBattleResults();
-        }
+        function revealDualAnswers() {
+            disableAllDualButtons();
 
-        // 時間到或雙方皆完成作答時統一揭曉結果
-        function revealBattleResults() {
-            const redAns = gameState.battle.red.answer;
-            const whiteAns = gameState.battle.white.answer;
-            const correctIdx = gameState.correctOptIndex;
+            const correctIdx = currentQuestion.correctIdx;
+            let redCorrect = (redAnswerIdx === correctIdx);
+            let whiteCorrect = (whiteAnswerIdx === correctIdx);
 
-            const redCorrect = (redAns === correctIdx);
-            const whiteCorrect = (whiteAns === correctIdx);
+            // 判斷首答快手 (+3 分)
+            let redSpeedBonus = false;
+            let whiteSpeedBonus = false;
 
-            // 搶答最快且答對判定
-            let fastestTeam = null;
             if (redCorrect && whiteCorrect) {
-                fastestTeam = gameState.battle.red.timestamp < gameState.battle.white.timestamp ? 'red' : 'white';
-            } else if (redCorrect) {
-                fastestTeam = 'red';
-            } else if (whiteCorrect) {
-                fastestTeam = 'white';
+                if (redTime < whiteTime) redSpeedBonus = true;
+                else if (whiteTime < redTime) whiteSpeedBonus = true;
+            } else if (redCorrect && redAnswered) {
+                redSpeedBonus = true;
+            } else if (whiteCorrect && whiteAnswered) {
+                whiteSpeedBonus = true;
             }
 
-            if (fastestTeam) playSound('bonus');
+            // 計算紅隊分數
+            let redPoints = 0;
+            if (redCorrect) {
+                redStreak++;
+                redPoints = redStreak + (redSpeedBonus ? 3 : 0);
+            } else {
+                redStreak = (redStreak <= 0) ? redStreak - 1 : -1;
+                redPoints = redStreak;
+            }
+            redScore += redPoints;
+
+            // 計算白隊分數
+            let whitePoints = 0;
+            if (whiteCorrect) {
+                whiteStreak++;
+                whitePoints = whiteStreak + (whiteSpeedBonus ? 3 : 0);
+            } else {
+                whiteStreak = (whiteStreak <= 0) ? whiteStreak - 1 : -1;
+                whitePoints = whiteStreak;
+            }
+            whiteScore += whitePoints;
+
+            // 音效與UI更新
+            if (redSpeedBonus || whiteSpeedBonus) playSound('speedBonus');
             else if (redCorrect || whiteCorrect) playSound('correct');
             else playSound('wrong');
 
-            processTeamScore('red', redCorrect, redAns, fastestTeam === 'red');
-            processTeamScore('white', whiteCorrect, whiteAns, fastestTeam === 'white');
+            document.getElementById('redScore').innerText = redScore;
+            document.getElementById('redStreak').innerText = Math.max(0, redStreak);
+            document.getElementById('whiteScore').innerText = whiteScore;
+            document.getElementById('whiteStreak').innerText = Math.max(0, whiteStreak);
 
-            // 顯示推進按鈕
-            const nextBtn = document.getElementById('battleNextBtn');
-            if (gameState.currentPhase === 1) {
-                nextBtn.innerText = '進入文學作品應用 ➔';
+            // 展示雙方反饋資訊
+            showDualColumnFeedback('red', redAnswerIdx, redCorrect, redPoints, redSpeedBonus);
+            showDualColumnFeedback('white', whiteAnswerIdx, whiteCorrect, whitePoints, whiteSpeedBonus);
+
+            // 顯示詩意解析與中央按鈕
+            const quoteBox = document.getElementById('dualQuoteBox');
+            quoteBox.classList.remove('hidden');
+            document.getElementById('dualQuoteText').innerText = currentQuestion[3];
+
+            const nextBtn = document.getElementById('dualNextBtn');
+            nextBtn.classList.remove('hidden');
+            if (currentPhase === 1) {
+                nextBtn.innerText = "進入文學作品應用 ➔";
             } else {
-                nextBtn.innerText = '進入下一題 ➔';
+                nextBtn.innerText = "下一題 ➔";
             }
-            document.getElementById('battleControlArea').classList.remove('hidden');
         }
 
-        function processTeamScore(team, isCorrect, selectedIdx, isFastest) {
-            const teamData = gameState.battle[team];
-            const btn0 = document.getElementById(`${team}Opt0`);
-            const btn1 = document.getElementById(`${team}Opt1`);
+        function showDualColumnFeedback(team, selectedIdx, isCorrect, points, speedBonus) {
+            const feedbackEl = document.getElementById(`${team}Feedback`);
+            const resultText = document.getElementById(`${team}ResultText`);
+            const pointsText = document.getElementById(`${team}PointsText`);
 
-            if (gameState.correctOptIndex === 0) btn0.classList.add('bg-green-100', 'border-green-600');
-            if (gameState.correctOptIndex === 1) btn1.classList.add('bg-green-100', 'border-green-600');
+            feedbackEl.classList.remove('hidden');
 
-            if (!isCorrect && selectedIdx !== null && selectedIdx >= 0) {
-                if (selectedIdx === 0) btn0.classList.add('bg-red-100', 'border-red-600');
-                if (selectedIdx === 1) btn1.classList.add('bg-red-100', 'border-red-600');
+            if (selectedIdx === null) {
+                resultText.innerText = "⏰ 超時未答";
+                resultText.className = "text-vermilion font-bold";
+            } else if (isCorrect) {
+                resultText.innerText = speedBonus ? "⚡ 正確 (+3快手)" : "🎉 正確";
+                resultText.className = "text-bamboo font-bold";
+            } else {
+                resultText.innerText = "❌ 錯誤";
+                resultText.className = "text-vermilion font-bold";
             }
 
-            let delta = 0;
-            if (isCorrect) {
-                if (teamData.streak < 0) teamData.streak = 0;
-                teamData.streak++;
-                delta = teamData.streak;
-                if (isFastest) delta += 3; // 搶答成功獎勵 +3
-            } else {
-                if (teamData.streak > 0) teamData.streak = 0;
-                teamData.streak--;
-                delta = teamData.streak;
-            }
+            pointsText.innerText = `得分：${points > 0 ? '+' + points : points}`;
 
-            teamData.score += delta;
-            document.getElementById(`${team}Score`).innerText = teamData.score;
-            document.getElementById(`${team}Streak`).innerText = 
-                teamData.streak > 0 ? `🔥連對 ${teamData.streak}` : (teamData.streak < 0 ? `❄️連錯 ${Math.abs(teamData.streak)}` : '');
-
-            const statusEl = document.getElementById(`${team}Status`);
-            const fbEl = document.getElementById(`${team}Feedback`);
-
-            if (isCorrect) {
-                statusEl.innerText = isFastest ? '⚡ 搶答成功！(+3分紅利)' : '✨ 回答正確！';
-                statusEl.className = 'text-xs font-bold text-green-700 mb-2 font-kai';
-            } else {
-                statusEl.innerText = selectedIdx === null ? '⏰ 時間到未作答' : '❌ 回答錯誤';
-                statusEl.className = 'text-xs font-bold text-red-700 mb-2 font-kai';
-            }
-
-            const q = gameState.currentQuestion;
-            fbEl.classList.remove('hidden');
-            fbEl.innerHTML = `正解：<strong>${q.ans}</strong><br>變動：${delta > 0 ? '+' + delta : delta} 分`;
-        }
-
-        function nextBattlePhase() {
-            playSound('click');
-            if (gameState.currentPhase === 1) {
-                setupPhase2UI_Battle();
-            } else {
-                if (gameState.timeRemaining > 0) {
-                    loadNewQuestion_Battle();
-                } else {
-                    endGame();
+            // 標示按鈕顏色
+            for (let i = 0; i < 2; i++) {
+                const btn = document.getElementById(`${team}Opt${i}`);
+                if (i === currentQuestion.correctIdx) {
+                    btn.classList.add('bg-green-100', 'border-bamboo');
+                } else if (i === selectedIdx && !isCorrect) {
+                    btn.classList.add('bg-red-100', 'border-vermilion');
                 }
             }
         }
 
-        function loadNewQuestion_Battle() {
-            const bank = gameState.activeBank && gameState.activeBank.length > 0 ? gameState.activeBank : SEASON_DATA;
-            const randIdx = Math.floor(Math.random() * bank.length);
-            gameState.currentQuestion = bank[randIdx];
-
-            setupPhase1UI_Battle();
-        }
-
-        // 修改對戰切換進入點
-        const originalLoadNewQuestion = loadNewQuestion;
-        loadNewQuestion = function() {
-            if (gameState.mode === 'single') {
-                const bank = gameState.activeBank && gameState.activeBank.length > 0 ? gameState.activeBank : SEASON_DATA;
-                gameState.currentQuestion = bank[Math.floor(Math.random() * bank.length)];
-                setupPhase1UI();
-            } else {
-                loadNewQuestion_Battle();
-            }
-        };
-
-
-        /* ==========================================================================
-           9. 結算與重置
-           ========================================================================== */
-        function endGame() {
-            clearInterval(gameState.overallTimer);
-            stopStageTimer();
-            playSound('victory');
-
-            document.getElementById('singleGameScreen').classList.add('hidden');
-            document.getElementById('battleGameScreen').classList.add('hidden');
-            document.getElementById('resultScreen').classList.remove('hidden');
-
-            if (gameState.mode === 'single') {
-                document.getElementById('singleResult').classList.remove('hidden');
-                document.getElementById('battleResult').classList.add('hidden');
-                
-                const finalScore = gameState.single.score;
-                document.getElementById('finalSingleScore').innerText = finalScore;
-
-                let title = '文學雅士';
-                if (finalScore >= 30) title = '翰林學士 ‧ 國學大師';
-                else if (finalScore >= 20) title = '四時詩豪 ‧ 敏銳雋永';
-                else if (finalScore >= 10) title = '風物知音 ‧ 秀才才俊';
-                document.getElementById('singleRankTitle').innerText = title;
-
-            } else {
-                document.getElementById('singleResult').classList.add('hidden');
-                document.getElementById('battleResult').classList.remove('hidden');
-
-                const redFinal = gameState.battle.red.score;
-                const whiteFinal = gameState.battle.white.score;
-
-                document.getElementById('finalRedScore').innerText = redFinal;
-                document.getElementById('finalWhiteScore').innerText = whiteFinal;
-
-                const winnerEl = document.getElementById('winnerText');
-                if (redFinal > whiteFinal) {
-                    winnerEl.innerText = '🚩 恭喜 紅隊 獲得最終勝利！';
-                    winnerEl.className = 'text-2xl font-bold font-kai text-red-700 py-2 animate-bounce';
-                } else if (whiteFinal > redFinal) {
-                    winnerEl.innerText = '🏳️ 恭喜 白隊 獲得最終勝利！';
-                    winnerEl.className = 'text-2xl font-bold font-kai text-blue-700 py-2 animate-bounce';
-                } else {
-                    winnerEl.innerText = '🤝 雙方旗鼓相當，平分秋色！';
-                    winnerEl.className = 'text-2xl font-bold font-kai text-amber-800 py-2';
-                }
+        function disableAllDualButtons() {
+            for (let i = 0; i < 2; i++) {
+                document.getElementById(`redOpt${i}`).disabled = true;
+                document.getElementById(`whiteOpt${i}`).disabled = true;
             }
         }
 
-        function restartGame() {
+        function nextDualStep() {
             playSound('click');
-            document.getElementById('resultScreen').classList.add('hidden');
-            document.getElementById('setupScreen').classList.remove('hidden');
-        }
+            if (remainingTime <= 0) return;
 
-
-        /* ==========================================================================
-           10. 一鍵下載修正版 index.html 檔
-           ========================================================================== */
-        function downloadHTML() {
-            try {
-                const fullHTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-                const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'index.html';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            } catch (e) {
-                console.error("Download failed:", e);
-                // 備用複製方式
-                const dummy = document.createElement('textarea');
-                dummy.value = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-                document.body.appendChild(dummy);
-                dummy.select();
-                document.execCommand('copy');
-                document.body.removeChild(dummy);
-                alert('已成功將最新完整的 HTML 原始碼複製至剪貼簿！');
+            if (currentPhase === 1) {
+                currentPhase = 2;
+                renderDualPhase();
+            } else {
+                startDualQuestion();
             }
         }
 
-        /* 說明 Modal */
-        function showHelpModal() { playSound('click'); document.getElementById('helpModal').classList.remove('hidden'); }
-        function hideHelpModal() { playSound('click'); document.getElementById('helpModal').classList.add('hidden'); }
+        /* ----------------------------------------------------
+           9. 輔助函式與 Modal 彈窗控制
+        ---------------------------------------------------- */
+        function resetTimerBar(barId) {
+            const bar = document.getElementById(barId);
+            bar.classList.remove('timer-bar-active');
+            void bar.offsetWidth; // 強制重繪 (reflow)
+            bar.classList.add('timer-bar-active');
+        }
+
+        function showRulesModal() {
+            playSound('click');
+            document.getElementById('rulesModal').classList.remove('hidden');
+        }
+
+        function hideRulesModal() {
+            playSound('click');
+            document.getElementById('rulesModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
