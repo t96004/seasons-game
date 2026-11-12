@@ -80,21 +80,34 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        /* 輕微晃動動畫 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .shake-effect {
+            animation: shake 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 text-ink">
 
-    <!-- 頂部導覽列 (徹底刪除下載修正版 HTML 按鈕) -->
-    <header class="w-full max-w-5xl mx-auto flex justify-between items-center px-4 py-3 ink-card mb-3 bg-xuanDark">
+    <!-- 頂部導覽列 (全功能防堵排版，嚴格移除下載 HTML 按鈕) -->
+    <header class="w-full max-w-5xl mx-auto flex flex-wrap justify-between items-center px-4 py-3 ink-card mb-3 bg-xuanDark gap-2">
         <div class="flex items-center space-x-2">
             <span class="text-2xl">🖌️</span>
             <h1 class="text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-vermilion">四時尋章：文學季節意象大挑戰</h1>
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center flex-wrap gap-2">
+            <button id="testSoundBtn" onclick="testSound()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-gold text-white border border-ink rounded-lg ink-button flex items-center gap-1">
+                🔔 測試音效
+            </button>
             <button id="soundToggleBtn" onclick="toggleSound()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-xuan border border-ink rounded-lg ink-button flex items-center gap-1">
                 <span id="soundIcon">🔊</span> <span id="soundText">音效: 開</span>
             </button>
-            <button onclick="showRulesModal()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-gold text-white border border-ink rounded-lg ink-button">
+            <button onclick="showRulesModal()" class="px-3 py-1.5 text-xs sm:text-sm font-bold bg-bamboo text-white border border-ink rounded-lg ink-button">
                 📜 規則
             </button>
             <button id="homeBtn" onclick="returnToSetup()" class="hidden px-3 py-1.5 text-xs sm:text-sm font-bold bg-vermilion text-white border border-ink rounded-lg ink-button">
@@ -149,7 +162,7 @@
 
             <!-- 時間選擇 -->
             <div>
-                <label class="block text-base font-bold text-ink mb-2">時間長度：</label>
+                <label class="block text-base font-bold text-ink mb-2">4. 選擇時間長度：</label>
                 <div class="grid grid-cols-3 gap-3">
                     <button type="button" id="time60Btn" onclick="selectTimeLimit(60)" class="p-2 sm:p-3 text-center border-2 border-ink rounded-lg font-bold bg-gold text-white ink-button">
                         ⏱️ 1 分鐘 (60s)
@@ -185,13 +198,13 @@
                 </div>
             </div>
 
-            <!-- 階段提示與 3 秒倒數進度條 -->
+            <!-- 3 秒倒數進度條 -->
             <div class="w-full bg-xuanDark rounded-full h-3 border border-ink overflow-hidden">
                 <div id="singleTimerBar" class="h-full bg-vermilion w-full"></div>
             </div>
 
             <div class="text-center font-bold text-gray-700">
-                <span id="singlePhaseBadge" class="inline-block bg-gold text-white px-3 py-1 rounded-full text-xs sm:text-sm">階段一：意象辨識 (3秒)</span>
+                <span id="singlePhaseBadge" class="inline-block bg-gold text-white px-3 py-1 rounded-full text-xs sm:text-sm">第一階段：意象辨識 (3秒)</span>
             </div>
 
             <!-- 題目卡片 -->
@@ -346,7 +359,7 @@
                 <ul class="list-disc pl-5 space-y-1">
                     <li><strong>答對：</strong>第 1 題 +1 分；連續答對遞增得分 (+1, +2, +3...)。</li>
                     <li><strong>答錯/超時：</strong>第 1 次 -1 分；連續答錯遞減扣分 (-1, -2, -3...)。</li>
-                    <li><strong>兩人對戰快手加分：</strong>每一階段最快答對的小隊，額外獲贈 <strong>+3 分 (首答快手加分)</strong>！</li>
+                    <li><strong>兩人對戰快手加分：</strong>每一階段最快答對的小隊，額外獲贈 <strong>⚡ 首答快手 +3 分</strong>！</li>
                 </ul>
             </div>
             <div class="text-right pt-2 border-t border-paperBorder">
@@ -375,10 +388,15 @@
         </div>
     </div>
 
+    <!-- Toast 提示文字 -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-ink text-white px-4 py-2 rounded-lg shadow-lg font-bold text-sm pointer-events-none transition-opacity duration-300 opacity-0 z-50">
+        提示訊息
+    </div>
+
     <!-- 腳本邏輯 -->
     <script>
         /* ----------------------------------------------------
-           1. 完整題庫資料庫 (徹底防呆，確保零空值)
+           1. 完整題庫資料庫 (共 195 題，100% 內建)
         ---------------------------------------------------- */
         
         // 38 題月份題 [小題分組, 單題題目, 答案文字, 詩詞延伸, 答案分組]
@@ -425,7 +443,6 @@
 
         // 157 題季節題
         const SEASON_QUESTIONS = [
-            // 1-38 為對應季節版本 (小題分組為 "月份")
             ["月份", "孟春", "春", "江南孟春天，荇葉大如錢。白雪裝梅樹，青袍似葑田。──唐˙鮑防〈狀江南·孟春〉", "春"],
             ["月份", "初春", "春", "芳草才芽，梨花未雨，春魂已作天涯絮。──清˙徐燦〈踏莎行·初春〉", "春"],
             ["月份", "元春", "春", "元春瑞雪潤紅城，氣象一新喜色增。─現代˙李遠新〈元春雪〉", "春"],
@@ -464,7 +481,6 @@
             ["月份", "暮冬", "冬", "暮冬嚴寒氣，風雪滿長安。──佚名", "冬"],
             ["月份", "臘月", "冬", "臘月大雪，歲寒知松柏。──民間諺語", "冬"],
             ["月份", "冰月", "冬", "冰月嚴寒，滴水成冰。──民間諺語", "冬"],
-            // 39-157 豐富題庫
             ["節日節氣", "春節", "春", "佳賞及春節，微風動芳草。──唐˙李世民〈初春登樓即目觀作述懷〉", "春"],
             ["節日節氣", "元宵", "春", "試燈風裡賣元宵。──清˙符曾〈上元竹枝詞〉", "春"],
             ["節日節氣", "寒食", "春", "春城無處不飛花，寒食東風御柳斜。──唐˙韓翃〈寒食〉", "春"],
@@ -512,7 +528,7 @@
             ["動物", "黃鶯、黃鸝", "春", "兩個黃鸝鳴翠柳，一行白鷺上青天。──唐˙杜甫〈絕句〉", "春"],
             ["動物", "燕", "春", "幾處早鶯爭暖樹，誰家新燕啄春泥。──唐˙白居易〈錢塘湖春行〉", "春"],
             ["動物", "蜂蝶", "春", "蜂蝶紛紛過牆去，卻疑春色在鄰家。──唐˙王駕〈春晴〉", "春"],
-            ["動物", "蟬", "夏", "蟬噪林逾靜，鳥鳴山更幽。──南朝梁˙王籍〈入若耶溪〉", "夏"],
+            ["動物", "蝉", "夏", "蟬噪林逾靜，鳥鳴山更幽。──南朝梁˙王籍〈入若耶溪〉", "夏"],
             ["動物", "蛙", "夏", "稻花香裡說豐年，聽取蛙聲一片。──宋˙辛棄疾〈西江月〉", "夏"],
             ["動物", "蚊", "夏", "夏蚊成雷，私擬作群鶴舞空。──清˙沈復〈兒時記趣〉", "夏"],
             ["動物", "蟋蟀", "秋", "蟋蟀在堂，歲聿其莫。──《詩經˙唐風˙蟋蟀》", "秋"],
@@ -589,112 +605,287 @@
         const SUB_CATEGORIES = ["月份", "節日節氣", "風", "動物", "植物", "天象及人類活動", "不分類"];
 
         /* ----------------------------------------------------
-           2. Web Audio API 音效系統 (全面 try...catch 保護)
+           2. 【強效音效引擎】(Web Audio API + PCM WAV 備援)
+           嚴禁 exponentialRamp 傳 0，全域點擊自動解鎖 (Resume)
         ---------------------------------------------------- */
-        let audioCtx = null;
-        let soundEnabled = true;
+        class SoundEngine {
+            constructor() {
+                this.enabled = true;
+                this.ctx = null;
+                this.masterGain = null;
+                this.compressor = null;
+                this.unlocked = false;
+            }
 
-        function initAudio() {
-            if (!audioCtx) {
+            init() {
+                if (this.ctx) return;
                 try {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    if (AudioContext) audioCtx = new AudioContext();
+                    const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtxClass) {
+                        this.ctx = new AudioCtxClass();
+                        // 建立壓縮器提升整體音量與飽滿度
+                        this.compressor = this.ctx.createDynamicsCompressor();
+                        this.compressor.threshold.setValueAtTime(-24, this.ctx.currentTime);
+                        this.compressor.knee.setValueAtTime(30, this.ctx.currentTime);
+                        this.compressor.ratio.setValueAtTime(12, this.ctx.currentTime);
+                        this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+                        this.compressor.release.setValueAtTime(0.25, this.ctx.currentTime);
+
+                        // 主音量 (Master Gain 設為 0.85 確保聲量充足)
+                        this.masterGain = this.ctx.createGain();
+                        this.masterGain.gain.setValueAtTime(0.85, this.ctx.currentTime);
+
+                        this.compressor.connect(this.masterGain);
+                        this.masterGain.connect(this.ctx.destination);
+                    }
                 } catch (e) {
-                    console.log("Audio not supported");
+                    console.log("Web Audio API not supported", e);
                 }
             }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
+
+            unlock() {
+                this.init();
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume().then(() => {
+                        this.unlocked = true;
+                    }).catch(err => console.log(err));
+                } else if (this.ctx) {
+                    this.unlocked = true;
+                }
+            }
+
+            playTone(freq, type, duration, startGain = 0.3) {
+                if (!this.enabled) return;
+                this.unlock();
+
+                if (!this.ctx) {
+                    this.playFallbackBeep(freq, duration);
+                    return;
+                }
+
+                try {
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    gain.gain.setValueAtTime(startGain, now);
+                    // ⚠️ 關鍵保護：嚴禁 exponentialRamp 至 0！最小必須使用 0.001
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+                    osc.connect(gain);
+                    gain.connect(this.compressor || this.ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + duration);
+                } catch (e) {
+                    console.log("Play tone error", e);
+                    this.playFallbackBeep(freq, duration);
+                }
+            }
+
+            // 雙音頻疊加 (古風木魚/笛音)
+            playDualTone(freq1, freq2, type1, type2, duration, gainVal = 0.35) {
+                if (!this.enabled) return;
+                this.unlock();
+                if (!this.ctx) {
+                    this.playFallbackBeep(freq1, duration);
+                    return;
+                }
+                try {
+                    const now = this.ctx.currentTime;
+                    const osc1 = this.ctx.createOscillator();
+                    const osc2 = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc1.type = type1;
+                    osc2.type = type2;
+                    osc1.frequency.setValueAtTime(freq1, now);
+                    osc2.frequency.setValueAtTime(freq2, now);
+
+                    gain.gain.setValueAtTime(gainVal, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+                    osc1.connect(gain);
+                    osc2.connect(gain);
+                    gain.connect(this.compressor || this.ctx.destination);
+
+                    osc1.start(now);
+                    osc2.start(now);
+                    osc1.stop(now + duration);
+                    osc2.stop(now + duration);
+                } catch (e) {
+                    this.playFallbackBeep(freq1, duration);
+                }
+            }
+
+            // 1. 木魚/琴音點擊音效
+            click() {
+                this.playDualTone(600, 1200, 'sine', 'triangle', 0.06, 0.4);
+            }
+
+            // 2. 開場竹笛/古箏琶音
+            gameStart() {
+                if (!this.enabled) return;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => {
+                        this.playTone(freq, 'sine', 0.25, 0.35);
+                    }, idx * 70);
+                });
+            }
+
+            // 3. 3秒倒數滴答聲 (音高遞增)
+            tick(secondLeft) {
+                if (!this.enabled) return;
+                // 3s: 440Hz, 2s: 587Hz, 1s: 880Hz
+                const freqs = { 3: 440, 2: 587, 1: 880 };
+                const freq = freqs[secondLeft] || 500;
+                this.playTone(freq, 'triangle', 0.08, 0.4);
+            }
+
+            // 4. 正確音效 (五聲琶音 + 連擊升調)
+            correct(streak = 0) {
+                if (!this.enabled) return;
+                const baseFreqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                const pitchShift = Math.min(streak * 20, 200); // 隨連擊微幅提升音高
+                baseFreqs.forEach((freq, i) => {
+                    setTimeout(() => {
+                        this.playDualTone(freq + pitchShift, (freq + pitchShift) * 1.5, 'sine', 'triangle', 0.2, 0.35);
+                    }, i * 60);
+                });
+            }
+
+            // 5. 錯誤 / 逾時音效 (雙低音下墜 Sawtooth + Triangle)
+            wrong() {
+                if (!this.enabled) return;
+                this.playDualTone(220, 164.81, 'sawtooth', 'triangle', 0.35, 0.45);
+            }
+
+            // 6. 兩人對戰快手獎勵音效 (+3分)
+            speedBonus() {
+                if (!this.enabled) return;
+                this.playTone(1318.51, 'sine', 0.15, 0.4); // E6 鈴鐺音
+                setTimeout(() => {
+                    this.playTone(1760.00, 'sine', 0.25, 0.4); // A6
+                }, 80);
+            }
+
+            // 7. 結算勝利華麗音效
+            fanfare() {
+                if (!this.enabled) return;
+                const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => {
+                        this.playDualTone(freq, freq * 1.25, 'triangle', 'sine', 0.4, 0.35);
+                    }, idx * 90);
+                });
+            }
+
+            // PCM Base64 WAV 純軟體動態備援
+            playFallbackBeep(freq, duration) {
+                try {
+                    const sampleRate = 8000;
+                    const numSamples = Math.floor(sampleRate * duration);
+                    const wavBytes = 44 + numSamples;
+                    const buffer = new Uint8Array(wavBytes);
+                    
+                    const writeString = (offset, str) => {
+                        for (let i = 0; i < str.length; i++) buffer[offset + i] = str.charCodeAt(i);
+                    };
+                    const writeUint32 = (offset, val) => {
+                        buffer[offset] = val & 0xff; buffer[offset+1] = (val>>8)&0xff;
+                        buffer[offset+2] = (val>>16)&0xff; buffer[offset+3] = (val>>24)&0xff;
+                    };
+                    const writeUint16 = (offset, val) => {
+                        buffer[offset] = val & 0xff; buffer[offset+1] = (val>>8)&0xff;
+                    };
+
+                    writeString(0, 'RIFF'); writeUint32(4, 36 + numSamples); writeString(8, 'WAVE');
+                    writeString(12, 'fmt '); writeUint32(16, 16); writeUint16(20, 1); writeUint16(22, 1);
+                    writeUint32(24, sampleRate); writeUint32(28, sampleRate); writeUint16(32, 1); writeUint16(34, 8);
+                    writeString(36, 'data'); writeUint32(40, numSamples);
+
+                    for (let i = 0; i < numSamples; i++) {
+                        const t = i / sampleRate;
+                        const sample = Math.sin(2 * Math.PI * freq * t);
+                        const volume = Math.max(0, 1 - (i / numSamples));
+                        buffer[44 + i] = Math.floor((sample * volume * 0.4 + 1) * 127.5);
+                    }
+
+                    let binary = '';
+                    for (let i = 0; i < buffer.length; i++) binary += String.fromCharCode(buffer[i]);
+                    const base64 = btoa(binary);
+                    const snd = new Audio('data:audio/wav;base64,' + base64);
+                    snd.play().catch(e => console.log("Fallback failed", e));
+                } catch(e) {}
             }
         }
 
-        function playSound(type) {
-            if (!soundEnabled) return;
-            try {
-                initAudio();
-                if (!audioCtx) return;
+        const soundEngine = new SoundEngine();
 
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                const now = audioCtx.currentTime;
-
-                if (type === 'click') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(600, now);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-                    osc.start(now);
-                    osc.stop(now + 0.05);
-                } else if (type === 'correct') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(523.25, now); // C5
-                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
-                } else if (type === 'wrong') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(220, now); // A3
-                    osc.frequency.setValueAtTime(196, now + 0.15); // G3
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-                    osc.start(now);
-                    osc.stop(now + 0.35);
-                } else if (type === 'speedBonus') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(440, now);
-                    osc.frequency.setValueAtTime(880, now + 0.08);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-                    osc.start(now);
-                    osc.stop(now + 0.25);
-                } else if (type === 'gameover') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(392, now);
-                    osc.frequency.setValueAtTime(523.25, now + 0.2);
-                    osc.frequency.setValueAtTime(659.25, now + 0.4);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
-                    osc.start(now);
-                    osc.stop(now + 0.7);
-                }
-            } catch (e) {
-                console.log("Audio playback error:", e);
-            }
-        }
+        // 全域防阻 Autoplay，使用者只要觸摸/點擊畫面任何位置立即解鎖 AudioContext
+        ['pointerdown', 'touchstart', 'mousedown', 'click'].forEach(evtType => {
+            window.addEventListener(evtType, () => soundEngine.unlock(), { once: false, passive: true });
+        });
 
         function toggleSound() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('soundIcon').innerText = soundEnabled ? '🔊' : '🔇';
-            document.getElementById('soundText').innerText = soundEnabled ? '音效: 開' : '音效: 關';
-            if (soundEnabled) playSound('click');
+            soundEngine.enabled = !soundEngine.enabled;
+            document.getElementById('soundIcon').innerText = soundEngine.enabled ? '🔊' : '🔇';
+            document.getElementById('soundText').innerText = soundEngine.enabled ? '音效: 開' : '音效: 關';
+            if (soundEngine.enabled) {
+                soundEngine.click();
+                showToast("音效已開啟");
+            } else {
+                showToast("音效已靜音");
+            }
+        }
+
+        function testSound() {
+            soundEngine.unlock();
+            soundEngine.correct(2);
+            showToast("🔊 正播放測試和弦！");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 1500);
         }
 
         /* ----------------------------------------------------
-           3. 全局狀態與設定
+           3. 遊戲狀態與參數
         ---------------------------------------------------- */
         let gameMode = 'single'; // 'single' | 'dual'
         let mainCategory = '月份'; // '月份' | '季節'
         let subCategory = '不分類';
         let timeLimit = 60; // 60, 180, 300
 
-        // 遊戲運行狀態
+        // 題目與流程控制
         let questionPool = [];
         let currentQuestion = null;
         let currentOptions = [];
         let currentPhase = 1; // 1: 意象辨識, 2: 文學作品應用
         let globalTimerInterval = null;
         let remainingTime = 60;
+
+        // 3 秒階段計時與滴答聲
         let phaseTimerTimeout = null;
+        let tickInterval = null;
+        let phaseSecondsLeft = 3;
 
         // 單人模式分數
         let singleScore = 0;
         let singleStreak = 0;
 
-        // 兩人對戰分數與答題狀態
+        // 兩人對戰分數與狀態
         let redScore = 0;
         let redStreak = 0;
         let redAnswered = false;
@@ -708,7 +899,7 @@
         let whiteTime = 0;
 
         /* ----------------------------------------------------
-           4. 頁面初始化與設定選項選擇
+           4. 頁面初始化與設定選項綁定
         ---------------------------------------------------- */
         window.onload = function() {
             renderSubCatButtons();
@@ -731,7 +922,7 @@
         }
 
         function selectGameMode(mode) {
-            playSound('click');
+            soundEngine.click();
             gameMode = mode;
             const singleBtn = document.getElementById('modeSingleBtn');
             const dualBtn = document.getElementById('modeDualBtn');
@@ -747,7 +938,7 @@
         }
 
         function selectMainCategory(cat) {
-            playSound('click');
+            soundEngine.click();
             mainCategory = cat;
             const monthBtn = document.getElementById('catMonthBtn');
             const seasonBtn = document.getElementById('catSeasonBtn');
@@ -763,13 +954,13 @@
         }
 
         function selectSubCategory(sub) {
-            playSound('click');
+            soundEngine.click();
             subCategory = sub;
             renderSubCatButtons();
         }
 
         function selectTimeLimit(seconds) {
-            playSound('click');
+            soundEngine.click();
             timeLimit = seconds;
             [60, 180, 300].forEach(s => {
                 const btn = document.getElementById(`time${s}Btn`);
@@ -782,7 +973,7 @@
         }
 
         /* ----------------------------------------------------
-           5. 題庫與干擾項生成防呆演算法 (嚴格保證不空值)
+           5. 題庫抽選與干擾項產生 (防呆保證不重複且異分組)
         ---------------------------------------------------- */
         function initQuestionPool() {
             const rawPool = mainCategory === '月份' ? MONTH_QUESTIONS : SEASON_QUESTIONS;
@@ -791,7 +982,6 @@
             } else {
                 questionPool = [...rawPool];
             }
-            // 隨機打亂
             questionPool.sort(() => Math.random() - 0.5);
         }
 
@@ -802,50 +992,40 @@
             return questionPool.pop();
         }
 
-        // 隨機選出相應階層之錯誤干擾項
         function generateOptions(correctItem, phase) {
             const fullList = mainCategory === '月份' ? MONTH_QUESTIONS : SEASON_QUESTIONS;
             const correctGroup = correctItem[4]; // 答案分組
             
-            // 挑選答案分組不同的題目做為錯誤選項
+            // 挑選答案分組與正確題目不同的項做為干擾項
             let validDistractors = fullList.filter(item => item[4] !== correctGroup);
             if (validDistractors.length === 0) {
                 validDistractors = fullList.filter(item => item[1] !== correctItem[1]);
             }
             
             const distractorItem = validDistractors[Math.floor(Math.random() * validDistractors.length)];
-            
             const correctText = (phase === 1) ? correctItem[2] : correctItem[3];
             const distractorText = (phase === 1) ? distractorItem[2] : distractorItem[3];
 
-            // 隨機擺放位置 (0 或 1)
             const isCorrectIndexZero = Math.random() < 0.5;
             if (isCorrectIndexZero) {
-                return {
-                    options: [correctText, distractorText],
-                    correctIndex: 0
-                };
+                return { options: [correctText, distractorText], correctIndex: 0 };
             } else {
-                return {
-                    options: [distractorText, correctText],
-                    correctIndex: 1
-                };
+                return { options: [distractorText, correctText], correctIndex: 1 };
             }
         }
 
         /* ----------------------------------------------------
-           6. 遊戲流程控制 (開始、倒數、返回)
+           6. 遊戲流程控制
         ---------------------------------------------------- */
         function startGame() {
-            playSound('click');
+            soundEngine.gameStart();
             initQuestionPool();
 
             if (questionPool.length === 0) {
-                alert("該分類下暫無題目！");
+                showToast("該分類下無題目，請選擇其他類別！");
                 return;
             }
 
-            // 重置分數與計時
             remainingTime = timeLimit;
             singleScore = 0; singleStreak = 0;
             redScore = 0; redStreak = 0;
@@ -872,7 +1052,7 @@
                 startDualQuestion();
             }
 
-            // 啟動總計時器
+            // 啟動主時間倒數器
             if (globalTimerInterval) clearInterval(globalTimerInterval);
             globalTimerInterval = setInterval(() => {
                 remainingTime--;
@@ -885,9 +1065,9 @@
         }
 
         function returnToSetup() {
-            playSound('click');
+            soundEngine.click();
+            clearPhaseTimers();
             if (globalTimerInterval) clearInterval(globalTimerInterval);
-            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
 
             document.getElementById('setupScreen').classList.remove('hidden');
             document.getElementById('singleGameScreen').classList.add('hidden');
@@ -897,9 +1077,9 @@
         }
 
         function endGame() {
-            playSound('gameover');
+            soundEngine.fanfare();
+            clearPhaseTimers();
             if (globalTimerInterval) clearInterval(globalTimerInterval);
-            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
 
             const scoreBox = document.getElementById('gameOverScoreBox');
             scoreBox.innerHTML = '';
@@ -933,8 +1113,34 @@
             document.getElementById('gameOverModal').classList.remove('hidden');
         }
 
+        /* 啟動 3 秒倒數與每秒滴答聲 */
+        function startPhaseTimer(barId, onTimeoutCallback) {
+            clearPhaseTimers();
+            resetTimerBar(barId);
+
+            phaseSecondsLeft = 3;
+            soundEngine.tick(phaseSecondsLeft); // 3s 滴聲
+
+            tickInterval = setInterval(() => {
+                phaseSecondsLeft--;
+                if (phaseSecondsLeft > 0) {
+                    soundEngine.tick(phaseSecondsLeft); // 2s, 1s 滴聲
+                }
+            }, 1000);
+
+            phaseTimerTimeout = setTimeout(() => {
+                clearPhaseTimers();
+                onTimeoutCallback();
+            }, 3000);
+        }
+
+        function clearPhaseTimers() {
+            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
+            if (tickInterval) clearInterval(tickInterval);
+        }
+
         /* ----------------------------------------------------
-           7. 【一人遊戲】核心邏輯
+           7. 【單人模式】邏輯
         ---------------------------------------------------- */
         function startSingleQuestion() {
             currentQuestion = getNextQuestion();
@@ -943,9 +1149,6 @@
         }
 
         function renderSinglePhase() {
-            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
-
-            // 隱藏回饋與下一題按鈕
             document.getElementById('singleFeedbackBox').classList.add('hidden');
             document.getElementById('singleNextBtn').classList.add('hidden');
 
@@ -954,7 +1157,7 @@
             const phaseBadge = document.getElementById('singlePhaseBadge');
 
             subTag.innerText = `【類別：${currentQuestion[0]}】`;
-            titleEl.innerText = currentQuestion[1]; // 單題題目
+            titleEl.innerText = currentQuestion[1];
 
             if (currentPhase === 1) {
                 phaseBadge.innerText = "第一階段：意象辨識 (3秒)";
@@ -964,12 +1167,10 @@
                 phaseBadge.className = "inline-block bg-bamboo text-white px-3 py-1 rounded-full text-xs sm:text-sm";
             }
 
-            // 生成選項
             const generated = generateOptions(currentQuestion, currentPhase);
             currentOptions = generated.options;
             currentQuestion.correctIdx = generated.correctIndex;
 
-            // 渲染選項按鈕
             for (let i = 0; i < 2; i++) {
                 const btn = document.getElementById(`singleOpt${i}`);
                 const txt = document.getElementById(`singleOptText${i}`);
@@ -978,27 +1179,24 @@
                 txt.innerText = (i === 0 ? "A. " : "B. ") + currentOptions[i];
             }
 
-            // 啟動 3 秒倒數動畫與定時器
-            resetTimerBar('singleTimerBar');
-            phaseTimerTimeout = setTimeout(() => {
-                handleSingleTimeout();
-            }, 3000);
+            // 開始 3 秒計時與滴答聲
+            startPhaseTimer('singleTimerBar', handleSingleTimeout);
         }
 
         function handleSingleAnswer(selectedIdx) {
-            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
+            clearPhaseTimers();
             disableSingleOptions();
 
             const isCorrect = (selectedIdx === currentQuestion.correctIdx);
             let pointDelta = 0;
 
             if (isCorrect) {
-                playSound('correct');
                 singleStreak++;
+                soundEngine.correct(singleStreak);
                 pointDelta = singleStreak;
                 singleScore += pointDelta;
             } else {
-                playSound('wrong');
+                soundEngine.wrong();
                 singleStreak = (singleStreak <= 0) ? singleStreak - 1 : -1;
                 pointDelta = singleStreak;
                 singleScore += pointDelta;
@@ -1012,7 +1210,7 @@
 
         function handleSingleTimeout() {
             disableSingleOptions();
-            playSound('wrong');
+            soundEngine.wrong();
 
             singleStreak = (singleStreak <= 0) ? singleStreak - 1 : -1;
             const pointDelta = singleStreak;
@@ -1050,19 +1248,17 @@
             }
 
             pointsEl.innerText = `得分：${points > 0 ? '+' + points : points}`;
-            quoteEl.innerText = `名句出處：${currentQuestion[3]}`;
+            quoteEl.innerText = `出處及解析：${currentQuestion[3]}`;
 
-            // 高亮正確與錯誤按鈕
             for (let i = 0; i < 2; i++) {
                 const btn = document.getElementById(`singleOpt${i}`);
                 if (i === currentQuestion.correctIdx) {
                     btn.classList.add('bg-green-100', 'border-bamboo');
                 } else if (i === selectedIdx && !isCorrect) {
-                    btn.classList.add('bg-red-100', 'border-vermilion');
+                    btn.classList.add('bg-red-100', 'border-vermilion', 'shake-effect');
                 }
             }
 
-            // 自動推進或顯示按鈕
             if (currentPhase === 1) {
                 setTimeout(() => {
                     if (remainingTime > 0) {
@@ -1076,14 +1272,14 @@
         }
 
         function nextSingleQuestion() {
-            playSound('click');
+            soundEngine.click();
             if (remainingTime > 0) {
                 startSingleQuestion();
             }
         }
 
         /* ----------------------------------------------------
-           8. 【兩人對戰模式】核心邏輯
+           8. 【兩人對戰模式】邏輯
         ---------------------------------------------------- */
         function startDualQuestion() {
             currentQuestion = getNextQuestion();
@@ -1092,8 +1288,6 @@
         }
 
         function renderDualPhase() {
-            if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
-
             redAnswered = false; redAnswerIdx = null; redTime = 0;
             whiteAnswered = false; whiteAnswerIdx = null; whiteTime = 0;
 
@@ -1110,7 +1304,6 @@
             currentOptions = generated.options;
             currentQuestion.correctIdx = generated.correctIndex;
 
-            // 渲染紅隊與白隊選項
             for (let i = 0; i < 2; i++) {
                 const rBtn = document.getElementById(`redOpt${i}`);
                 const rTxt = document.getElementById(`redOptText${i}`);
@@ -1125,14 +1318,11 @@
                 wTxt.innerText = (i === 0 ? "A. " : "B. ") + currentOptions[i];
             }
 
-            resetTimerBar('dualTimerBar');
-            phaseTimerTimeout = setTimeout(() => {
-                revealDualAnswers();
-            }, 3000);
+            startPhaseTimer('dualTimerBar', revealDualAnswers);
         }
 
         function handleDualAnswer(team, selectedIdx) {
-            playSound('click');
+            soundEngine.click();
             const now = Date.now();
             if (team === 'red' && !redAnswered) {
                 redAnswered = true;
@@ -1148,24 +1338,25 @@
                 document.getElementById(`whiteOpt${selectedIdx}`).classList.add('bg-amber-100');
             }
 
-            // 若兩隊皆作答完畢，立即結算
+            // 若雙方皆作答完畢，立即結算
             if (redAnswered && whiteAnswered) {
-                if (phaseTimerTimeout) clearTimeout(phaseTimerTimeout);
+                clearPhaseTimers();
                 revealDualAnswers();
             }
         }
 
         function revealDualAnswers() {
+            clearPhaseTimers();
             disableAllDualButtons();
 
             const correctIdx = currentQuestion.correctIdx;
             let redCorrect = (redAnswerIdx === correctIdx);
             let whiteCorrect = (whiteAnswerIdx === correctIdx);
 
-            // 判斷首答快手 (+3 分)
             let redSpeedBonus = false;
             let whiteSpeedBonus = false;
 
+            // 判斷首答快手 (最快答對者 +3 分)
             if (redCorrect && whiteCorrect) {
                 if (redTime < whiteTime) redSpeedBonus = true;
                 else if (whiteTime < redTime) whiteSpeedBonus = true;
@@ -1175,7 +1366,7 @@
                 whiteSpeedBonus = true;
             }
 
-            // 計算紅隊分數
+            // 計算紅隊得分
             let redPoints = 0;
             if (redCorrect) {
                 redStreak++;
@@ -1186,7 +1377,7 @@
             }
             redScore += redPoints;
 
-            // 計算白隊分數
+            // 計算白隊得分
             let whitePoints = 0;
             if (whiteCorrect) {
                 whiteStreak++;
@@ -1197,32 +1388,30 @@
             }
             whiteScore += whitePoints;
 
-            // 音效與UI更新
-            if (redSpeedBonus || whiteSpeedBonus) playSound('speedBonus');
-            else if (redCorrect || whiteCorrect) playSound('correct');
-            else playSound('wrong');
+            // 播放播放適當音效
+            if (redSpeedBonus || whiteSpeedBonus) {
+                soundEngine.speedBonus();
+            } else if (redCorrect || whiteCorrect) {
+                soundEngine.correct(Math.max(redStreak, whiteStreak));
+            } else {
+                soundEngine.wrong();
+            }
 
             document.getElementById('redScore').innerText = redScore;
             document.getElementById('redStreak').innerText = Math.max(0, redStreak);
             document.getElementById('whiteScore').innerText = whiteScore;
             document.getElementById('whiteStreak').innerText = Math.max(0, whiteStreak);
 
-            // 展示雙方反饋資訊
             showDualColumnFeedback('red', redAnswerIdx, redCorrect, redPoints, redSpeedBonus);
             showDualColumnFeedback('white', whiteAnswerIdx, whiteCorrect, whitePoints, whiteSpeedBonus);
 
-            // 顯示詩意解析與中央按鈕
             const quoteBox = document.getElementById('dualQuoteBox');
             quoteBox.classList.remove('hidden');
             document.getElementById('dualQuoteText').innerText = currentQuestion[3];
 
             const nextBtn = document.getElementById('dualNextBtn');
             nextBtn.classList.remove('hidden');
-            if (currentPhase === 1) {
-                nextBtn.innerText = "進入文學作品應用 ➔";
-            } else {
-                nextBtn.innerText = "下一題 ➔";
-            }
+            nextBtn.innerText = (currentPhase === 1) ? "進入文學作品應用 ➔" : "下一題 ➔";
         }
 
         function showDualColumnFeedback(team, selectedIdx, isCorrect, points, speedBonus) {
@@ -1245,13 +1434,12 @@
 
             pointsText.innerText = `得分：${points > 0 ? '+' + points : points}`;
 
-            // 標示按鈕顏色
             for (let i = 0; i < 2; i++) {
                 const btn = document.getElementById(`${team}Opt${i}`);
                 if (i === currentQuestion.correctIdx) {
                     btn.classList.add('bg-green-100', 'border-bamboo');
                 } else if (i === selectedIdx && !isCorrect) {
-                    btn.classList.add('bg-red-100', 'border-vermilion');
+                    btn.classList.add('bg-red-100', 'border-vermilion', 'shake-effect');
                 }
             }
         }
@@ -1264,7 +1452,7 @@
         }
 
         function nextDualStep() {
-            playSound('click');
+            soundEngine.click();
             if (remainingTime <= 0) return;
 
             if (currentPhase === 1) {
@@ -1276,22 +1464,22 @@
         }
 
         /* ----------------------------------------------------
-           9. 輔助函式與 Modal 彈窗控制
+           9. 輔助控制
         ---------------------------------------------------- */
         function resetTimerBar(barId) {
             const bar = document.getElementById(barId);
             bar.classList.remove('timer-bar-active');
-            void bar.offsetWidth; // 強制重繪 (reflow)
+            void bar.offsetWidth; // 強制引發 reflow 重新開跑動畫
             bar.classList.add('timer-bar-active');
         }
 
         function showRulesModal() {
-            playSound('click');
+            soundEngine.click();
             document.getElementById('rulesModal').classList.remove('hidden');
         }
 
         function hideRulesModal() {
-            playSound('click');
+            soundEngine.click();
             document.getElementById('rulesModal').classList.add('hidden');
         }
     </script>
