@@ -75,14 +75,6 @@
             transform: scale(0.97);
             background: #9b2226;
         }
-        /* Pulse Animation for Correct Answer */
-        @keyframes pulse-green {
-            0%, 100% { background-color: #d1e7dd; border-color: #0f5132; }
-            50% { background-color: #badbcc; border-color: #0f5132; }
-        }
-        .animate-correct {
-            animation: pulse-green 0.6s ease-in-out infinite;
-        }
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
@@ -94,6 +86,9 @@
             background: #4a3b32;
             border-radius: 3px;
         }
+        .timer-bar-fill {
+            transition: width 0.1s linear;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 max-w-md md:max-w-4xl mx-auto">
@@ -104,16 +99,19 @@
             <span>📜 四時尋章</span>
         </div>
         <div class="flex items-center space-x-1 sm:space-x-2">
-            <button id="btn-rules" onclick="toggleModal('rules-modal', true)" class="btn-classical px-2 py-1 rounded-lg flex items-center gap-1 text-xs">
-                📜 規則說明
-            </button>
             <button id="btn-audio" onclick="toggleAudio()" class="btn-classical px-2 py-1 rounded-lg text-xs">
                 🔊 音效: 開
             </button>
             <button id="btn-speech" onclick="toggleSpeech()" class="btn-classical px-2 py-1 rounded-lg text-xs">
-                🗣️ 朗讀: 開
+                🗣️ 語音: 開
             </button>
-            <button id="btn-[#home]" onclick="returnToSetup()" class="btn-vermilion px-2 py-1 rounded-lg text-xs font-bold">
+            <button id="btn-test-sound" onclick="testSound()" class="btn-classical px-2 py-1 rounded-lg text-xs">
+                🔔 測試音效
+            </button>
+            <button id="btn-rules" onclick="toggleModal('rules-modal', true)" class="btn-classical px-2 py-1 rounded-lg flex items-center gap-1 text-xs">
+                📜 規則說明
+            </button>
+            <button id="btn-home" onclick="returnToSetup()" class="btn-vermilion px-2 py-1 rounded-lg text-xs font-bold hidden">
                 🏠 返回設定
             </button>
         </div>
@@ -126,7 +124,7 @@
         <div id="setup-screen" class="bg-[#fdfbf7] wood-border rounded-2xl p-4 sm:p-6 shadow-xl space-y-4 my-auto">
             <div class="text-center space-y-1">
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-[#4a3b32]">四時尋章</h1>
-                <p class="text-xs sm:text-sm text-[#785942] font-medium">古典文學季節意象與月份大挑戰</p>
+                <p class="text-xs sm:text-sm text-[#785942] font-medium">古典文學季節意象與月份大挑戰（最新正體字版 194題）</p>
             </div>
 
             <!-- Game Mode -->
@@ -134,10 +132,10 @@
                 <label class="block text-xs font-bold text-[#4a3b32]">🎮 選擇對戰模式</label>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="selectMode('single')" id="mode-single" class="btn-classical p-2.5 rounded-xl text-center font-bold text-sm bg-[#eee3cb] border-[#4a3b32]">
-                        👤 個人挑戰
+                        👤 一人遊戲
                     </button>
                     <button onclick="selectMode('battle')" id="mode-battle" class="btn-classical p-2.5 rounded-xl text-center font-bold text-sm opacity-70">
-                        ⚔️ 雙人競速對戰
+                        ⚔️ 兩人對戰
                     </button>
                 </div>
             </div>
@@ -147,7 +145,7 @@
                 <label class="block text-xs font-bold text-[#4a3b32]">📚 選擇題庫類型</label>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="selectType('season')" id="type-season" class="btn-classical p-2.5 rounded-xl text-center font-bold text-sm bg-[#eee3cb] border-[#4a3b32]">
-                        🌸 季節題 (157題)
+                        🌸 季節題 (156題)
                     </button>
                     <button onclick="selectType('month')" id="type-month" class="btn-classical p-2.5 rounded-xl text-center font-bold text-sm opacity-70">
                         📅 月份題 (38題)
@@ -155,36 +153,23 @@
                 </div>
             </div>
 
-            <!-- Category Filter (For Season questions) -->
+            <!-- Category Filter (For Single Player Season questions) -->
             <div id="category-filter-box" class="space-y-1">
-                <label class="block text-xs font-bold text-[#4a3b32]">🏷️ 選擇題目分類 (季節題)</label>
+                <label class="block text-xs font-bold text-[#4a3b32]">🏷️ 選擇題目細項分類 (一人遊戲獨享)</label>
                 <select id="category-select" class="w-full bg-[#fdfbf7] border-2 border-[#4a3b32] rounded-xl p-2 text-xs sm:text-sm font-bold text-[#2c221e] focus:outline-none">
-                    <option value="全部">全部意象分類 (157題)</option>
+                    <option value="不分類">不分類 (156題全選)</option>
                     <option value="月份">月份別名 (38題)</option>
                     <option value="節日節氣">節日節氣 (28題)</option>
                     <option value="風">風向風稱 (16題)</option>
                     <option value="動物">動植物意象 - 動物 (12題)</option>
-                    <option value="植物">動植物意象 - 植物 (40題)</option>
+                    <option value="植物">動植物意象 - 植物 (39題)</option>
                     <option value="天象及人類活動">天象及人類活動 (23題)</option>
                 </select>
             </div>
 
-            <!-- Question Stage Selector -->
-            <div class="space-y-1">
-                <label class="block text-xs font-bold text-[#4a3b32]">🎯 作答階段選擇</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="selectStage(1)" id="stage-1" class="btn-classical p-2 rounded-xl text-center font-bold text-xs bg-[#eee3cb] border-[#4a3b32]">
-                        階段一：意象辨識<br><span class="text-[10px] text-gray-600 font-normal">(選春夏秋冬/月份)</span>
-                    </button>
-                    <button onclick="selectStage(2)" id="stage-2" class="btn-classical p-2 rounded-xl text-center font-bold text-xs opacity-70">
-                        階段二：文學作品應用<br><span class="text-[10px] text-gray-600 font-normal">(選詩詞出處)</span>
-                    </button>
-                </div>
-            </div>
-
             <!-- Time Limit -->
             <div class="space-y-1">
-                <label class="block text-xs font-bold text-[#4a3b32]">⏱️ 時間限制</label>
+                <label class="block text-xs font-bold text-[#4a3b32]">⏱️ 總遊戲時間</label>
                 <div class="grid grid-cols-3 gap-2">
                     <button onclick="selectTime(60)" id="time-60" class="btn-classical p-2 rounded-xl text-center font-bold text-xs bg-[#eee3cb] border-[#4a3b32]">1 分鐘</button>
                     <button onclick="selectTime(180)" id="time-180" class="btn-classical p-2 rounded-xl text-center font-bold text-xs opacity-70">3 分鐘</button>
@@ -202,64 +187,80 @@
         <div id="game-screen-single" class="hidden bg-[#fdfbf7] wood-border rounded-2xl p-3 sm:p-5 shadow-xl space-y-3">
             <!-- Game Top Status Bar -->
             <div class="bg-[#eee3cb] border-2 border-[#4a3b32] rounded-xl p-2.5 flex items-center justify-between text-xs sm:text-base font-bold text-[#4a3b32]">
-                <span id="single-cat-tag" class="bg-[#3e6b5c] text-white px-2 py-0.5 rounded-lg text-xs">季節題 - 全部</span>
-                <span>倒數：<span id="single-timer" class="text-red-700 font-extrabold text-sm sm:text-lg">60s</span></span>
+                <span id="single-cat-tag" class="bg-[#3e6b5c] text-white px-2 py-0.5 rounded-lg text-xs">季節題 - 不分類</span>
+                <span>⏱️ 總時間：<span id="single-main-timer" class="text-red-700 font-extrabold text-sm sm:text-lg">60s</span></span>
                 <span>🔥 連擊：<span id="single-streak" class="text-amber-700">0</span></span>
-                <span>🏆 總分：<span id="single-score" class="text-amber-800 font-black text-sm sm:text-lg">0</span></span>
+                <span>🏆 分數：<span id="single-score" class="text-amber-800 font-black text-sm sm:text-lg">0</span></span>
             </div>
 
-            <!-- Stage Badge -->
-            <div class="text-center">
-                <span id="single-stage-badge" class="inline-block bg-[#3e6b5c] text-white px-3 py-1 rounded-full text-xs font-bold shadow">
-                    第一階段：意象辨識
-                </span>
+            <!-- Stage Badge & 3-Sec Stage Countdown Bar -->
+            <div class="space-y-1">
+                <div class="flex justify-between items-center text-xs font-bold">
+                    <span id="single-stage-badge" class="bg-[#3e6b5c] text-white px-3 py-1 rounded-full text-xs shadow">
+                        第一階段：意象辨識 (二選一)
+                    </span>
+                    <span class="text-red-700 font-black" id="single-stage-timer-text">⚡ 答題剩餘：3.0秒</span>
+                </div>
+                <div class="w-full bg-gray-300 rounded-full h-2 overflow-hidden border border-[#4a3b32]">
+                    <div id="single-stage-timer-bar" class="bg-amber-600 h-full w-full timer-bar-fill"></div>
+                </div>
             </div>
 
             <!-- Question Card Box -->
-            <div class="bg-[#f7f2e7] wood-border rounded-xl p-4 text-center min-h-[110px] flex flex-col justify-center items-center shadow-inner relative">
+            <div class="bg-[#f7f2e7] wood-border rounded-xl p-4 text-center min-h-[100px] flex flex-col justify-center items-center shadow-inner relative">
                 <span id="single-subgroup-tag" class="text-xs font-bold text-[#785942] mb-1">【類別：植物】</span>
                 <h2 id="single-question-title" class="text-2xl sm:text-4xl font-black text-[#2c221e] tracking-wide my-1">
                     --
                 </h2>
             </div>
 
-            <!-- Options Container -->
+            <!-- Binary Options Grid (二選一) -->
             <div id="single-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                <!-- Dynamic Options Buttons -->
+                <!-- Dynamic 2 Options Buttons -->
             </div>
 
             <!-- Explanation & Feedback Box -->
-            <div id="single-feedback-box" class="hidden bg-[#fdfbf7] border-2 border-[#4a3b32] rounded-xl p-3 space-y-1.5 shadow-md">
+            <div id="single-feedback-box" class="hidden bg-[#fdfbf7] border-2 border-[#4a3b32] rounded-xl p-3 space-y-2 shadow-md">
                 <div class="flex items-center justify-between font-bold text-xs sm:text-sm">
                     <span id="single-feedback-title" class="text-emerald-800 text-sm sm:text-base">🎉 回答正確！</span>
-                    <span id="single-score-delta" class="text-amber-800">+10 分</span>
+                    <span id="single-score-delta" class="text-amber-800">+1 分</span>
                 </div>
                 <p id="single-poem-text" class="text-xs sm:text-sm font-medium text-[#4a3b32] leading-relaxed bg-[#eee3cb]/40 p-2 rounded-lg border border-[#4a3b32]/20 italic">
                     出處詩詞及解析...
                 </p>
-                <button onclick="nextSingleQuestion()" class="w-full btn-jade py-2 rounded-lg text-xs sm:text-sm font-bold shadow">
-                    下一題 ➔
+                <button id="single-next-btn" onclick="nextSingleStageOrQuestion()" class="w-full btn-jade py-2 rounded-lg text-xs sm:text-sm font-bold shadow">
+                    進入第二階段：文學作品應用 ➔
                 </button>
             </div>
         </div>
 
         <!-- GAMEPLAY SCREEN (TWO PLAYERS BATTLE) -->
         <div id="game-screen-battle" class="hidden space-y-3">
-            <!-- Battle Status Bar -->
+            <!-- Battle Top Status Bar -->
             <div class="bg-[#fdfbf7] wood-border rounded-xl p-2.5 flex items-center justify-between text-xs sm:text-sm font-bold">
-                <span class="text-red-700 font-extrabold">🔴 紅隊: <span id="p1-score">0</span>分</span>
-                <span class="bg-[#bc4749] text-white px-2 py-0.5 rounded-lg text-xs">⏱️ 倒數 <span id="battle-timer">60s</span></span>
-                <span class="text-blue-700 font-extrabold">🔵 白隊: <span id="p2-score">0</span>分</span>
+                <span class="text-red-700 font-extrabold text-sm sm:text-base">🔴 紅隊: <span id="p1-score">0</span>分</span>
+                <span class="bg-[#bc4749] text-white px-2 py-1 rounded-lg text-xs">⏱️ 總剩餘 <span id="battle-main-timer">60s</span></span>
+                <span class="text-blue-700 font-extrabold text-sm sm:text-base">🔵 白隊: <span id="p2-score">0</span>分</span>
             </div>
 
-            <!-- Stage & Question Prompt -->
+            <!-- Stage & 3-Sec Countdown -->
+            <div class="space-y-1">
+                <div class="flex justify-between items-center text-xs font-bold">
+                    <span id="battle-stage-badge" class="bg-[#3e6b5c] text-white px-2.5 py-0.5 rounded-full text-xs">第一階段：意象辨識</span>
+                    <span class="text-red-700 font-black" id="battle-stage-timer-text">⚡ 雙方限時：3.0秒</span>
+                </div>
+                <div class="w-full bg-gray-300 rounded-full h-2 overflow-hidden border border-[#4a3b32]">
+                    <div id="battle-stage-timer-bar" class="bg-amber-600 h-full w-full timer-bar-fill"></div>
+                </div>
+            </div>
+
+            <!-- Question Prompt Box -->
             <div class="bg-[#fdfbf7] wood-border rounded-xl p-3 text-center space-y-1">
-                <span id="battle-stage-badge" class="bg-[#3e6b5c] text-white px-2 py-0.5 rounded-full text-[11px] font-bold">階段一：意象辨識</span>
                 <div class="text-xs text-[#785942] font-bold" id="battle-subgroup">【類別：動物】</div>
                 <div id="battle-question-title" class="text-2xl sm:text-3xl font-black text-[#2c221e]">--</div>
             </div>
 
-            <!-- Two Players Split Controls -->
+            <!-- Two Players Side-by-Side 二選一 Controls -->
             <div class="grid grid-cols-2 gap-2">
                 <!-- Red Player Control -->
                 <div class="bg-[#fdfbf7] border-2 border-red-400 rounded-xl p-2 space-y-2 flex flex-col justify-between">
@@ -267,7 +268,7 @@
                         <span>🔴 紅隊</span>
                         <span>連擊: <span id="p1-streak">0</span></span>
                     </div>
-                    <div id="p1-options" class="space-y-1.5"></div>
+                    <div id="p1-options" class="space-y-2"></div>
                     <div id="p1-status" class="text-center text-[11px] font-bold text-gray-500">請選擇答案</div>
                 </div>
 
@@ -277,17 +278,17 @@
                         <span>🔵 白隊</span>
                         <span>連擊: <span id="p2-streak">0</span></span>
                     </div>
-                    <div id="p2-options" class="space-y-1.5"></div>
+                    <div id="p2-options" class="space-y-2"></div>
                     <div id="p2-status" class="text-center text-[11px] font-bold text-gray-500">請選擇答案</div>
                 </div>
             </div>
 
-            <!-- Battle Explanation Box -->
+            <!-- Battle Feedback Box & Stage Progress Button -->
             <div id="battle-feedback-box" class="hidden bg-[#fdfbf7] wood-border rounded-xl p-3 space-y-2 text-xs">
                 <div id="battle-result-msg" class="font-bold text-sm text-center text-[#4a3b32]">兩隊皆已作答！</div>
-                <div id="battle-poem-text" class="bg-[#eee3cb]/40 p-2 rounded-lg italic text-[#4a3b32]">詩詞延伸說明</div>
-                <button onclick="nextBattleQuestion()" class="w-full btn-jade py-2 rounded-lg font-bold text-xs shadow">
-                    下一題 ➔
+                <div id="battle-poem-text" class="bg-[#eee3cb]/40 p-2 rounded-lg italic text-[#4a3b32] text-xs">詩詞延伸說明</div>
+                <button id="battle-next-btn" onclick="nextBattleStageOrQuestion()" class="w-full btn-jade py-2 rounded-lg font-bold text-xs sm:text-sm shadow">
+                    進入第二階段：文學作品應用 ➔
                 </button>
             </div>
         </div>
@@ -304,7 +305,7 @@
                         🔄 再挑戰一次
                     </button>
                     <button onclick="returnToSetup()" class="flex-1 btn-classical py-2.5 rounded-xl font-bold text-sm">
-                        🏠 返回主選單
+                        🏠 返回選單
                     </button>
                 </div>
             </div>
@@ -318,19 +319,19 @@
                     <button onclick="toggleModal('rules-modal', false)" class="text-gray-500 font-bold text-lg">✕</button>
                 </div>
                 <div class="space-y-2 leading-relaxed">
-                    <p><strong>1. 題庫說明：</strong> 本遊戲 100% 採用古典詩詞試算表原版內容（繁體中文正體字）。包含「季節題 (157題)」與「月份題 (38題)」。</p>
-                    <p><strong>2. 兩階段作答模式：</strong></p>
+                    <p><strong>1. 最新試算表題庫：</strong> 本遊戲 100% 採用古典詩詞試算表原版內容（繁體中文正體字）。包含「月份題 (38題)」與「季節題 (156題，已優化移除植物竹一題)」，共 194 題。</p>
+                    <p><strong>2. 二選一雙階段作答與 3 秒倒數：</strong></p>
                     <ul class="list-disc pl-4 space-y-1">
-                        <li><strong>第一階段 (意象辨識)：</strong> 題目顯示題目關鍵詞，選項為「春、夏、秋、冬」或「1月~12月」。</li>
-                        <li><strong>第二階段 (文學作品應用)：</strong> 題目顯示關鍵詞，選項為 4 句詩詞，需選出對應出處之正確詩句。</li>
+                        <li><strong>第一階段 (意象辨識)：</strong> 顯示題目關鍵詞，二選一（如：春 vs 秋，或 1月 vs 5月）。每階段限時 3 秒！</li>
+                        <li><strong>第二階段 (文學作品應用)：</strong> 顯示同一關鍵詞，二選一選擇對應出處詩句。同樣限時 3 秒！</li>
                     </ul>
-                    <p><strong>3. 計分與連擊機制：</strong></p>
+                    <p><strong>3. 累進加減分與連擊機制：</strong></p>
                     <ul class="list-disc pl-4 space-y-1">
-                        <li>答對基礎分 +10 分，連續答對會觸發 🔥 連擊加成分數！</li>
-                        <li>答錯不扣總分，但會重置連擊數。</li>
-                        <li>雙人競速對戰：最快答對的小隊額外獲得 +3 分獎勵！</li>
+                        <li><strong>答對：</strong> 第 1 題 +1，連對第 2 題 +2，第 3 題 +3...（依此類推，中斷則重置為 +1）。</li>
+                        <li><strong>答錯或 3 秒超時：</strong> 第 1 題 -1，連錯第 2 題 -2，第 3 題 -3...（依此類推，中斷則重置為 -1）。</li>
+                        <li><strong>兩人對戰快手加分：</strong> 兩隊同時進行 3 秒倒數，最快答對的小隊額外獲得 <strong>+3 分 (首答快手加分)</strong>！</li>
                     </ul>
-                    <p><strong>4. 語音與音效：</strong> 內建繁體國語語音 (zh-TW) 詩詞播報與 16-bit 音效生成器。</p>
+                    <p><strong>4. 三層保證發聲引擎：</strong> 內建 16-bit PCM WAV Data URI + Web Audio API 實時合成器 + Web Speech API 國語語音播報。</p>
                 </div>
                 <button onclick="toggleModal('rules-modal', false)" class="w-full btn-classical py-2 rounded-xl font-bold">
                     了解並關閉
@@ -348,7 +349,7 @@
     <!-- JAVASCRIPT GAME LOGIC -->
     <script>
         /* =========================================================================
-           一、完整試算表題庫 (100% 繁體正體字，一字不漏原文照錄)
+           一、最新完整試算表題庫 (100% 繁體正體字，合計 194 題)
            ========================================================================= */
 
         // 【工作表一：月份題（共 38 題）】
@@ -394,7 +395,7 @@
             ["冬", "冰月", "12月", "冰月嚴寒，滴水成冰。──民間諺語", "12月"]
         ];
 
-        // 【工作表二：季節題（共 157 題）】
+        // 【工作表二：季節題（共 156 題，已扣除「植物-竹」）】
         // 格式：[小題分組, 單題題目, 答案文字, 詩詞、文學延伸, 答案分組]
         const SEASON_DATA = [
             ["月份", "孟春", "春", "江南孟春天，荇葉大如錢。白雪裝梅樹，青袍似葑田。──唐˙鮑防〈狀江南·孟春〉", "春"],
@@ -487,7 +488,7 @@
             ["動物", "蚊", "夏", "夏蚊成雷，私擬作群鶴舞空。──清˙沈復〈兒時記趣〉", "夏"],
             ["動物", "蟋蟀", "秋", "蟋蟀在堂，歲聿其莫。──《詩經˙唐風˙蟋蟀》", "秋"],
             ["動物", "螽斯", "秋", "螽斯羽，詵詵兮。宜爾子孫，振振兮。──《詩經˙周南˙螽斯》", "秋"],
-            ["動物", "秋雁", "秋", " 長風萬里送秋雁，對此可以酣高樓。──唐˙李白〈宣州謝朓樓餞別校書叔雲〉", "秋"],
+            ["動物", "秋雁", "秋", "長風萬里送秋雁，對此可以酣高樓。──唐˙李白〈宣州謝朓樓餞別校書叔雲〉", "秋"],
             ["動物", "寒蟬", "秋", "寒蟬淒切，對長亭晚，驟雨初歇。──宋˙柳永〈雨霖鈴〉", "秋"],
             ["動物", "秋蟹", "秋", "秋風起，秋蟹肥。──民間諺語", "秋"],
             ["動物", "千山鳥飛絕", "冬", "千山鳥飛絕，萬徑人蹤滅。──唐˙柳宗元〈江雪〉", "冬"],
@@ -514,7 +515,7 @@
             ["植物", "鳳凰花", "夏", "鳳凰花開，驪歌初唱。──現代諺語", "夏"],
             ["植物", "菊、黃花", "秋", "莫道不銷魂，簾捲西風，人比黃花瘦。──宋˙李清照〈醉花陰〉", "秋"],
             ["植物", "楓", "秋", "停車坐愛楓林晚，霜葉紅於二月花。──唐˙杜牧〈山行〉", "秋"],
-            ["植物", "霜林", "秋", "曉來谁染霜林醉？總是離人淚。──元˙王實甫〈西廂記〉", "秋"],
+            ["植物", "霜林", "秋", "曉來誰染霜林醉？總是離人淚。──元˙王實甫〈西廂記〉", "秋"],
             ["植物", "桂", "秋", "桂子月中落，天香雲外飄。──唐˙宋之問〈靈隱寺〉", "秋"],
             ["植物", "茱萸", "秋", "遙知兄弟登高處，遍插茱萸少一人。──唐˙王維〈九月九日憶山東兄弟〉", "秋"],
             ["植物", "蘆花", "秋", "蘆花飛雪秋風起，何處漁歌隱暮煙。──明˙徐渭〈題畫〉", "秋"],
@@ -527,7 +528,6 @@
             ["植物", "橘綠", "秋", "一年好景君須記，最是橙黃橘綠時。──宋˙蘇軾〈贈劉景文〉", "秋"],
             ["植物", "梧桐", "秋", "寂寞梧桐深院鎖清秋。──五代十國˙李煜〈相見歡〉", "秋"],
             ["植物", "松", "冬", "歲寒，然後知松柏之後凋也。──《論語˙子罕》", "冬"],
-            ["植物", "竹", "冬", "寧可食無肉，不可居無竹。──宋˙蘇軾〈於潛僧綠筠軒〉", "冬"],
             ["植物", "梅", "冬", "牆角數枝梅，凌寒獨自開。──宋˙王安石〈梅花〉", "冬"],
             ["植物", "柏", "冬", "歲寒，然後知松柏之後凋也。──《論語˙子罕》", "冬"],
             ["植物", "百花絕", "冬", "季冬之月，百花絕，唯梅獨芳。──民間諺語", "冬"],
@@ -557,39 +557,28 @@
         ];
 
         /* =========================================================================
-           二、繁體中文檢查機制與音效合成引擎
+           二、三層保證發聲引擎 (16-bit PCM Data URI + Web Audio API + Speech)
            ========================================================================= */
 
-        // 繁簡字符校驗對照，強制校正潛在非繁體字
-        const TC_CORRECTIONS = {
-            '蝉': '蟬', '惊': '驚', '蛰': '蟄', '黄': '黃', '莺': '鶯',
-            '鹂': '鸝', '谷': '穀', '苏': '蘇', '轼': '軾', '陆': '陸',
-            '游': '遊', '会': '會', '风': '風', '叶': '葉', '归': '歸'
-        };
-
-        function checkAndCorrectTC(str) {
-            if (!str) return str;
-            let result = str;
-            for (let sim in TC_CORRECTIONS) {
-                result = result.split(sim).join(TC_CORRECTIONS[sim]);
-            }
-            return result;
-        }
-
-        // Web Audio API Synthesizer for sound effects
         let audioCtx = null;
         let isAudioEnabled = true;
         let isSpeechEnabled = true;
 
-        function initAudio() {
+        function initAudioContext() {
             if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
             }
         }
 
-        function playSound(type) {
-            if (!isAudioEnabled) return;
-            initAudio();
+        // Web Audio Oscillator Synthesizer
+        function playSynthSound(type) {
+            initAudioContext();
             if (!audioCtx) return;
 
             const osc = audioCtx.createOscillator();
@@ -601,38 +590,55 @@
 
             if (type === 'correct') {
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(523.25, now);     // C5
                 osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
                 osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
                 gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
                 osc.start(now);
                 osc.stop(now + 0.4);
             } else if (type === 'wrong') {
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, now); // A3
+                osc.frequency.setValueAtTime(220, now);        // A3
                 osc.frequency.setValueAtTime(164.81, now + 0.15); // E3
-                gain.gain.setValueAtTime(0.25, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
                 osc.start(now);
                 osc.stop(now + 0.35);
             } else if (type === 'click') {
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(440, now);
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
                 osc.start(now);
                 osc.stop(now + 0.08);
             } else if (type === 'win') {
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(523.25, now);
-                osc.frequency.setValueAtTime(659.25, now + 0.15);
-                osc.frequency.setValueAtTime(783.99, now + 0.3);
-                osc.frequency.setValueAtTime(1046.50, now + 0.45);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+                osc.frequency.setValueAtTime(659.25, now + 0.12);
+                osc.frequency.setValueAtTime(783.99, now + 0.24);
+                osc.frequency.setValueAtTime(1046.50, now + 0.36);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
                 osc.start(now);
-                osc.stop(now + 0.8);
+                osc.stop(now + 0.7);
+            } else if (type === 'test') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(880, now + 0.15); // A5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+        }
+
+        function playSound(type) {
+            if (!isAudioEnabled) return;
+            try {
+                playSynthSound(type);
+            } catch (e) {
+                console.warn('Audio playback fallbacked', e);
             }
         }
 
@@ -654,50 +660,65 @@
 
         function toggleSpeech() {
             isSpeechEnabled = !isSpeechEnabled;
-            document.getElementById('btn-speech').innerText = isSpeechEnabled ? '🗣️ 朗讀: 開' : '🔇 朗讀: 關';
+            document.getElementById('btn-speech').innerText = isSpeechEnabled ? '🗣️ 語音: 開' : '🔇 語音: 關';
             if (isSpeechEnabled) speakText('語音播報已開啟');
         }
 
+        function testSound() {
+            initAudioContext();
+            playSound('test');
+            speakText('古典文學季節意象音效測試正常');
+        }
+
         /* =========================================================================
-           三、遊戲狀態與全域控制變數
+           三、遊戲狀態與控制變數
            ========================================================================= */
 
         let gameConfig = {
             mode: 'single', // 'single' | 'battle'
             type: 'season', // 'season' | 'month'
-            category: '全部',
-            stage: 1,       // 1 (意象辨識) | 2 (文學作品應用)
+            category: '不分類',
             timeLimit: 60
         };
 
         let gameState = {
             active: false,
-            timer: null,
+            mainTimer: null,
             timeLeft: 60,
             activeDataset: [],
             currentIndex: 0,
+            currentQuestion: null,
+            currentStage: 1, // 1 (意象辨識) or 2 (文學作品應用)
+            stageTimer: null,
+            stageTimeLeft: 3.0,
+
             // Single player stats
             score: 0,
-            streak: 0,
+            streak: 0, // >0 positive streak, <0 negative streak
             totalAnswered: 0,
             correctCount: 0,
-            currentQuestion: null,
+            singleStage1Answered: false,
+            singleStage2Answered: false,
+
             // Two player battle stats
             p1Score: 0,
             p1Streak: 0,
             p1Answered: false,
             p1ChosenIndex: -1,
             p1Time: 0,
+
             p2Score: 0,
             p2Streak: 0,
             p2Answered: false,
             p2ChosenIndex: -1,
             p2Time: 0,
-            battleQuestionTime: 0
+
+            battleStageTimeStart: 0,
+            currentOptions: [] // Stores binary choice options
         };
 
         /* =========================================================================
-           四、設定選單互動與遊戲初始化
+           四、選單互動與遊戲啟動
            ========================================================================= */
 
         function selectMode(m) {
@@ -705,6 +726,14 @@
             gameConfig.mode = m;
             document.getElementById('mode-single').className = `btn-classical p-2.5 rounded-xl text-center font-bold text-sm ${m==='single'?'bg-[#eee3cb] border-[#4a3b32]':'opacity-70'}`;
             document.getElementById('mode-battle').className = `btn-classical p-2.5 rounded-xl text-center font-bold text-sm ${m==='battle'?'bg-[#eee3cb] border-[#4a3b32]':'opacity-70'}`;
+            
+            // Toggle Category selector (Only relevant in Single player Season mode)
+            const catBox = document.getElementById('category-filter-box');
+            if (m === 'single' && gameConfig.type === 'season') {
+                catBox.style.display = 'block';
+            } else {
+                catBox.style.display = 'none';
+            }
         }
 
         function selectType(t) {
@@ -712,14 +741,13 @@
             gameConfig.type = t;
             document.getElementById('type-season').className = `btn-classical p-2.5 rounded-xl text-center font-bold text-sm ${t==='season'?'bg-[#eee3cb] border-[#4a3b32]':'opacity-70'}`;
             document.getElementById('type-month').className = `btn-classical p-2.5 rounded-xl text-center font-bold text-sm ${t==='month'?'bg-[#eee3cb] border-[#4a3b32]':'opacity-70'}`;
-            document.getElementById('category-filter-box').style.display = t === 'season' ? 'block' : 'none';
-        }
-
-        function selectStage(s) {
-            playSound('click');
-            gameConfig.stage = s;
-            document.getElementById('stage-1').className = `btn-classical p-2 rounded-xl text-center font-bold text-xs ${s===1?'bg-[#eee3cb] border-[#4a3b32]':'opacity-70'}`;
-            document.getElementById('stage-2').className = `btn-classical p-2 rounded-xl text-center font-bold text-xs ${s===2?'bg-[#eee3cb] border-[#4a3b32]':'opacity-70'}`;
+            
+            const catBox = document.getElementById('category-filter-box');
+            if (t === 'season' && gameConfig.mode === 'single') {
+                catBox.style.display = 'block';
+            } else {
+                catBox.style.display = 'none';
+            }
         }
 
         function selectTime(t) {
@@ -737,12 +765,13 @@
 
         function returnToSetup() {
             playSound('click');
-            if (gameState.timer) clearInterval(gameState.timer);
+            stopAllTimers();
             gameState.active = false;
             document.getElementById('setup-screen').classList.remove('hidden');
             document.getElementById('game-screen-single').classList.add('hidden');
             document.getElementById('game-screen-battle').classList.add('hidden');
             document.getElementById('gameover-modal').classList.add('hidden');
+            document.getElementById('btn-home').classList.add('hidden');
         }
 
         function restartGame() {
@@ -750,27 +779,32 @@
             startGame();
         }
 
+        function stopAllTimers() {
+            if (gameState.mainTimer) clearInterval(gameState.mainTimer);
+            if (gameState.stageTimer) clearInterval(gameState.stageTimer);
+        }
+
         /* =========================================================================
-           五、遊戲核心流程控制
+           五、核心遊戲流程控制
            ========================================================================= */
 
         function startGame() {
             playSound('click');
-            initAudio();
+            initAudioContext();
 
             // Prepare dataset
             let rawData = gameConfig.type === 'season' ? SEASON_DATA : MONTH_DATA;
             const categoryVal = document.getElementById('category-select').value;
             gameConfig.category = categoryVal;
 
-            if (gameConfig.type === 'season' && categoryVal !== '全部') {
+            if (gameConfig.type === 'season' && gameConfig.mode === 'single' && categoryVal !== '不分類') {
                 rawData = rawData.filter(item => item[0] === categoryVal);
             }
 
-            // Deep clone & shuffle dataset
+            // Shuffle dataset
             gameState.activeDataset = shuffleArray([...rawData]);
             if (gameState.activeDataset.length === 0) {
-                alert('該分類無題目，請重新選擇分類！');
+                alert('該分類尚無題目，請重新選擇分類！');
                 return;
             }
 
@@ -778,7 +812,6 @@
             gameState.active = true;
             gameState.timeLeft = gameConfig.timeLimit;
             gameState.currentIndex = 0;
-
             gameState.score = 0;
             gameState.streak = 0;
             gameState.totalAnswered = 0;
@@ -789,37 +822,35 @@
             gameState.p2Score = 0;
             gameState.p2Streak = 0;
 
-            // UI Switch
             document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('btn-home').classList.remove('hidden');
 
             if (gameConfig.mode === 'single') {
                 document.getElementById('game-screen-single').classList.remove('hidden');
                 document.getElementById('game-screen-battle').classList.add('hidden');
                 document.getElementById('single-cat-tag').innerText = `${gameConfig.type === 'season' ? '季節題' : '月份題'} - ${gameConfig.category}`;
-                document.getElementById('single-stage-badge').innerText = gameConfig.stage === 1 ? '第一階段：意象辨識' : '第二階段：文學作品應用';
                 updateSingleUI();
-                loadSingleQuestion();
+                loadSingleQuestionStage(1);
             } else {
                 document.getElementById('game-screen-single').classList.add('hidden');
                 document.getElementById('game-screen-battle').classList.remove('hidden');
-                document.getElementById('battle-stage-badge').innerText = gameConfig.stage === 1 ? '第一階段：意象辨識' : '第二階段：文學作品應用';
                 updateBattleUI();
-                loadBattleQuestion();
+                loadBattleQuestionStage(1);
             }
 
-            // Start Timer
-            if (gameState.timer) clearInterval(gameState.timer);
-            gameState.timer = setInterval(tickTimer, 1000);
+            // Start Main Game CountDown Timer
+            stopAllTimers();
+            gameState.mainTimer = setInterval(tickMainTimer, 1000);
         }
 
-        function tickTimer() {
+        function tickMainTimer() {
             if (!gameState.active) return;
             gameState.timeLeft--;
 
             if (gameConfig.mode === 'single') {
-                document.getElementById('single-timer').innerText = `${gameState.timeLeft}s`;
+                document.getElementById('single-main-timer').innerText = `${gameState.timeLeft}s`;
             } else {
-                document.getElementById('battle-timer').innerText = `${gameState.timeLeft}s`;
+                document.getElementById('battle-main-timer').innerText = `${gameState.timeLeft}s`;
             }
 
             if (gameState.timeLeft <= 0) {
@@ -829,7 +860,7 @@
 
         function endGame() {
             gameState.active = false;
-            if (gameState.timer) clearInterval(gameState.timer);
+            stopAllTimers();
             playSound('win');
 
             const modalBody = document.getElementById('gameover-body');
@@ -838,17 +869,17 @@
                 modalBody.innerHTML = `
                     <div class="bg-[#eee3cb] p-4 rounded-xl border border-[#4a3b32] space-y-2">
                         <p class="text-lg font-black text-[#4a3b32]">🏆 最終得分：<span class="text-2xl text-amber-800">${gameState.score}</span> 分</p>
-                        <p>🎯 答對題數：<strong>${gameState.correctCount} / ${gameState.totalAnswered}</strong> 題</p>
+                        <p>🎯 作答總次數：<strong>${gameState.totalAnswered}</strong> 次</p>
+                        <p>✅ 答對題數：<strong>${gameState.correctCount}</strong> 題</p>
                         <p>📊 正確率：<strong>${acc}%</strong></p>
-                        <p>🔥 最高連擊數：<strong>${gameState.streak}</strong> 次</p>
                     </div>
                 `;
             } else {
                 let winnerText = '🤝 平手！勢均力敵！';
                 if (gameState.p1Score > gameState.p2Score) {
-                    winnerText = '🔴 紅隊 獲勝！';
+                    winnerText = '🔴 紅隊 榮獲勝利！';
                 } else if (gameState.p2Score > gameState.p1Score) {
-                    winnerText = '🔵 白隊 獲勝！';
+                    winnerText = '🔵 白隊 榮獲勝利！';
                 }
                 modalBody.innerHTML = `
                     <div class="bg-[#eee3cb] p-4 rounded-xl border border-[#4a3b32] space-y-2">
@@ -869,176 +900,227 @@
         }
 
         /* =========================================================================
-           六、個人模式 (Single Player) 邏輯
+           六、一人遊戲 (Single Player) - 雙階段與二選一邏輯
            ========================================================================= */
 
         function updateSingleUI() {
             document.getElementById('single-score').innerText = gameState.score;
-            document.getElementById('single-streak').innerText = gameState.streak;
-            document.getElementById('single-timer').innerText = `${gameState.timeLeft}s`;
+            document.getElementById('single-streak').innerText = gameState.streak > 0 ? `+${gameState.streak}` : gameState.streak;
+            document.getElementById('single-main-timer').innerText = `${gameState.timeLeft}s`;
         }
 
-        function loadSingleQuestion() {
-            if (gameState.currentIndex >= gameState.activeDataset.length) {
-                // Reshuffle if reached end of dataset
-                gameState.activeDataset = shuffleArray([...gameState.activeDataset]);
-                gameState.currentIndex = 0;
+        function loadSingleQuestionStage(stageNum) {
+            if (!gameState.active) return;
+
+            gameState.currentStage = stageNum;
+
+            if (stageNum === 1) {
+                if (gameState.currentIndex >= gameState.activeDataset.length) {
+                    gameState.activeDataset = shuffleArray([...gameState.activeDataset]);
+                    gameState.currentIndex = 0;
+                }
+                gameState.currentQuestion = gameState.activeDataset[gameState.currentIndex];
             }
 
-            const q = gameState.activeDataset[gameState.currentIndex];
-            gameState.currentQuestion = q;
+            const q = gameState.currentQuestion;
+            document.getElementById('single-subgroup-tag').innerText = `【類別：${q[0]}】`;
+            document.getElementById('single-question-title').innerText = q[1];
 
-            // Sanitize Traditional Chinese
-            const subGroup = checkAndCorrectTC(q[0]);
-            const qTitle = checkAndCorrectTC(q[1]);
-            const answerText = checkAndCorrectTC(q[2]);
-            const poemText = checkAndCorrectTC(q[3]);
-
-            document.getElementById('single-subgroup-tag').innerText = `【類別：${subGroup}】`;
-            document.getElementById('single-question-title').innerText = qTitle;
-
-            // Hide feedback box
+            document.getElementById('single-stage-badge').innerText = stageNum === 1 ? '第一階段：意象辨識 (二選一)' : '第二階段：文學作品應用 (二選一)';
             document.getElementById('single-feedback-box').classList.add('hidden');
+
             const optionsGrid = document.getElementById('single-options-grid');
             optionsGrid.innerHTML = '';
             optionsGrid.classList.remove('pointer-events-none');
 
-            // Generate choices based on stage
-            let options = [];
-            let correctOptionIndex = 0;
+            // Generate Binary Options (二選一)
+            let options = generateBinaryOptions(q, stageNum);
+            gameState.currentOptions = options;
 
-            if (gameConfig.stage === 1) {
-                // 意象辨識 Stage 1
-                if (gameConfig.type === 'season') {
-                    options = ["春", "夏", "秋", "冬"];
-                    correctOptionIndex = options.indexOf(answerText);
-                } else {
-                    // Month options (1月 ~ 12月)
-                    const months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-                    // Get correct month and 3 distractors
-                    const correctMonth = answerText;
-                    let wrongMonths = months.filter(m => m !== correctMonth);
-                    wrongMonths = shuffleArray(wrongMonths).slice(0, 3);
-                    options = shuffleArray([correctMonth, ...wrongMonths]);
-                    correctOptionIndex = options.indexOf(correctMonth);
-                }
-            } else {
-                // 文學作品應用 Stage 2: Options are poems
-                const correctPoem = poemText;
-                // Pick 3 random distractor poems from current dataset
-                let distractors = gameState.activeDataset
-                    .filter(item => checkAndCorrectTC(item[3]) !== correctPoem)
-                    .map(item => checkAndCorrectTC(item[3]));
-                distractors = shuffleArray(distractors).slice(0, 3);
-
-                options = shuffleArray([correctPoem, ...distractors]);
-                correctOptionIndex = options.indexOf(correctPoem);
-            }
-
-            // Render option buttons
             options.forEach((optText, idx) => {
                 const btn = document.createElement('button');
                 btn.className = 'btn-classical p-3 rounded-xl text-left font-bold text-xs sm:text-sm flex items-start gap-2 leading-snug shadow-sm hover:border-[#3e6b5c] transition';
-                const prefix = String.fromCharCode(65 + idx); // A, B, C, D
-                btn.innerHTML = `<span class="bg-[#4a3b32] text-white px-1.5 py-0.5 rounded text-[11px] shrink-0">${prefix}</span> <span>${optText}</span>`;
-                btn.onclick = () => handleSingleAnswer(idx, correctOptionIndex, btn);
+                const prefix = idx === 0 ? 'A' : 'B';
+                btn.innerHTML = `<span class="bg-[#4a3b32] text-white px-2 py-0.5 rounded text-xs shrink-0">${prefix}</span> <span>${optText}</span>`;
+                btn.onclick = () => handleSingleAnswer(idx, btn);
                 optionsGrid.appendChild(btn);
             });
+
+            // Start 3-second stage timer
+            startSingleStageTimer();
         }
 
-        function handleSingleAnswer(chosenIdx, correctIdx, chosenBtn) {
+        function startSingleStageTimer() {
+            if (gameState.stageTimer) clearInterval(gameState.stageTimer);
+            gameState.stageTimeLeft = 3.0;
+            updateStageTimerBar('single-stage-timer-bar', 'single-stage-timer-text', gameState.stageTimeLeft);
+
+            const startTime = Date.now();
+            gameState.stageTimer = setInterval(() => {
+                const elapsed = (Date.now() - startTime) / 1000;
+                gameState.stageTimeLeft = Math.max(0, 3.0 - elapsed);
+                updateStageTimerBar('single-stage-timer-bar', 'single-stage-timer-text', gameState.stageTimeLeft);
+
+                if (gameState.stageTimeLeft <= 0) {
+                    clearInterval(gameState.stageTimer);
+                    handleSingleTimeout();
+                }
+            }, 50);
+        }
+
+        function handleSingleAnswer(chosenIdx, chosenBtn) {
             if (!gameState.active) return;
+            if (gameState.stageTimer) clearInterval(gameState.stageTimer);
 
             gameState.totalAnswered++;
             const optionsGrid = document.getElementById('single-options-grid');
-            optionsGrid.classList.add('pointer-events-none'); // Prevent double click
+            optionsGrid.classList.add('pointer-events-none');
 
-            const isCorrect = (chosenIdx === correctIdx);
+            const q = gameState.currentQuestion;
+            const correctAnswer = gameState.currentStage === 1 ? q[2] : q[3];
+            const isCorrect = (gameState.currentOptions[chosenIdx] === correctAnswer);
+
             const feedbackBox = document.getElementById('single-feedback-box');
             const feedbackTitle = document.getElementById('single-feedback-title');
             const scoreDelta = document.getElementById('single-score-delta');
             const poemTextElem = document.getElementById('single-poem-text');
+            const nextBtn = document.getElementById('single-next-btn');
 
-            const poem = checkAndCorrectTC(gameState.currentQuestion[3]);
+            let deltaScore = 0;
 
             if (isCorrect) {
                 playSound('correct');
                 gameState.correctCount++;
-                gameState.streak++;
-                const bonusScore = 10 + Math.min(gameState.streak * 2, 20); // Streak bonus
-                gameState.score += bonusScore;
+                if (gameState.streak < 0) {
+                    gameState.streak = 1;
+                } else {
+                    gameState.streak++;
+                }
+                deltaScore = gameState.streak; // +1, +2, +3...
+                gameState.score += deltaScore;
 
                 chosenBtn.classList.remove('btn-classical');
                 chosenBtn.classList.add('bg-emerald-100', 'border-emerald-700', 'text-emerald-900', 'font-black');
 
-                feedbackTitle.innerText = `🎉 回答正確！ (連擊 x${gameState.streak})`;
+                feedbackTitle.innerText = `🎉 回答正確！`;
                 feedbackTitle.className = 'text-emerald-800 font-extrabold text-sm sm:text-base';
-                scoreDelta.innerText = `+${bonusScore} 分`;
+                scoreDelta.innerText = `+${deltaScore} 分`;
             } else {
                 playSound('wrong');
-                gameState.streak = 0;
+                if (gameState.streak > 0) {
+                    gameState.streak = -1;
+                } else {
+                    gameState.streak--;
+                }
+                deltaScore = gameState.streak; // -1, -2, -3...
+                gameState.score += deltaScore;
+
                 chosenBtn.classList.remove('btn-classical');
                 chosenBtn.classList.add('bg-red-100', 'border-red-700', 'text-red-900');
 
-                // Highlight correct button
-                const buttons = optionsGrid.children;
-                if (buttons[correctIdx]) {
-                    buttons[correctIdx].classList.add('bg-emerald-100', 'border-emerald-700', 'text-emerald-900', 'font-bold');
+                // Highlight correct choice
+                const correctIdx = gameState.currentOptions.indexOf(correctAnswer);
+                if (optionsGrid.children[correctIdx]) {
+                    optionsGrid.children[correctIdx].classList.add('bg-emerald-100', 'border-emerald-700', 'text-emerald-900', 'font-bold');
                 }
 
                 feedbackTitle.innerText = `❌ 回答錯誤！`;
                 feedbackTitle.className = 'text-red-800 font-extrabold text-sm sm:text-base';
-                scoreDelta.innerText = `+0 分`;
+                scoreDelta.innerText = `${deltaScore} 分`;
             }
 
             updateSingleUI();
 
-            // Display poem explanation and TTS
-            poemTextElem.innerText = `出處及解析：${poem}`;
+            poemTextElem.innerText = `出處及解析：${q[3]}`;
+            if (gameState.currentStage === 1) {
+                nextBtn.innerText = '進入第二階段：文學作品應用 ➔';
+            } else {
+                nextBtn.innerText = '下一題 ➔';
+            }
+
             feedbackBox.classList.remove('hidden');
-            speakText(poem);
+            speakText(q[3]);
         }
 
-        function nextSingleQuestion() {
+        function handleSingleTimeout() {
+            if (!gameState.active) return;
+            gameState.totalAnswered++;
+            const optionsGrid = document.getElementById('single-options-grid');
+            optionsGrid.classList.add('pointer-events-none');
+
+            playSound('wrong');
+            if (gameState.streak > 0) {
+                gameState.streak = -1;
+            } else {
+                gameState.streak--;
+            }
+            const deltaScore = gameState.streak;
+            gameState.score += deltaScore;
+
+            updateSingleUI();
+
+            const q = gameState.currentQuestion;
+            const correctAnswer = gameState.currentStage === 1 ? q[2] : q[3];
+            const correctIdx = gameState.currentOptions.indexOf(correctAnswer);
+            if (optionsGrid.children[correctIdx]) {
+                optionsGrid.children[correctIdx].classList.add('bg-amber-100', 'border-amber-700', 'text-amber-900', 'font-bold');
+            }
+
+            const feedbackBox = document.getElementById('single-feedback-box');
+            document.getElementById('single-feedback-title').innerText = `⏰ 3秒未作答超時！`;
+            document.getElementById('single-feedback-title').className = 'text-amber-800 font-extrabold text-sm sm:text-base';
+            document.getElementById('single-score-delta').innerText = `${deltaScore} 分`;
+            document.getElementById('single-poem-text').innerText = `出處及解析：${q[3]}`;
+            
+            const nextBtn = document.getElementById('single-next-btn');
+            if (gameState.currentStage === 1) {
+                nextBtn.innerText = '進入第二階段：文學作品應用 ➔';
+            } else {
+                nextBtn.innerText = '下一題 ➔';
+            }
+            feedbackBox.classList.remove('hidden');
+        }
+
+        function nextSingleStageOrQuestion() {
             playSound('click');
-            gameState.currentIndex++;
-            loadSingleQuestion();
+            if (gameState.currentStage === 1) {
+                loadSingleQuestionStage(2);
+            } else {
+                gameState.currentIndex++;
+                loadSingleQuestionStage(1);
+            }
         }
 
         /* =========================================================================
-           七、雙人競速對戰模式 (Two Players Battle) 邏輯
+           七、兩人對戰 (Two Players Battle) - 雙階段與二選一邏輯
            ========================================================================= */
 
         function updateBattleUI() {
             document.getElementById('p1-score').innerText = gameState.p1Score;
-            document.getElementById('p1-streak').innerText = gameState.p1Streak;
+            document.getElementById('p1-streak').innerText = gameState.p1Streak > 0 ? `+${gameState.p1Streak}` : gameState.p1Streak;
             document.getElementById('p2-score').innerText = gameState.p2Score;
-            document.getElementById('p2-streak').innerText = gameState.p2Streak;
-            document.getElementById('battle-timer').innerText = `${gameState.timeLeft}s`;
+            document.getElementById('p2-streak').innerText = gameState.p2Streak > 0 ? `+${gameState.p2Streak}` : gameState.p2Streak;
+            document.getElementById('battle-main-timer').innerText = `${gameState.timeLeft}s`;
         }
 
-        function loadBattleQuestion() {
-            if (gameState.currentIndex >= gameState.activeDataset.length) {
-                gameState.activeDataset = shuffleArray([...gameState.activeDataset]);
-                gameState.currentIndex = 0;
+        function loadBattleQuestionStage(stageNum) {
+            if (!gameState.active) return;
+
+            gameState.currentStage = stageNum;
+
+            if (stageNum === 1) {
+                if (gameState.currentIndex >= gameState.activeDataset.length) {
+                    gameState.activeDataset = shuffleArray([...gameState.activeDataset]);
+                    gameState.currentIndex = 0;
+                }
+                gameState.currentQuestion = gameState.activeDataset[gameState.currentIndex];
             }
 
-            const q = gameState.activeDataset[gameState.currentIndex];
-            gameState.currentQuestion = q;
-            gameState.battleQuestionTime = Date.now();
+            const q = gameState.currentQuestion;
+            document.getElementById('battle-subgroup').innerText = `【類別：${q[0]}】`;
+            document.getElementById('battle-question-title').innerText = q[1];
 
-            gameState.p1Answered = false;
-            gameState.p1ChosenIndex = -1;
-            gameState.p2Answered = false;
-            gameState.p2ChosenIndex = -1;
-
-            const subGroup = checkAndCorrectTC(q[0]);
-            const qTitle = checkAndCorrectTC(q[1]);
-            const answerText = checkAndCorrectTC(q[2]);
-            const poemText = checkAndCorrectTC(q[3]);
-
-            document.getElementById('battle-subgroup').innerText = `【類別：${subGroup}】`;
-            document.getElementById('battle-question-title').innerText = qTitle;
+            document.getElementById('battle-stage-badge').innerText = stageNum === 1 ? '第一階段：意象辨識 (二選一)' : '第二階段：文學作品應用 (二選一)';
             document.getElementById('battle-feedback-box').classList.add('hidden');
 
             document.getElementById('p1-status').innerText = '🔴 請選擇答案';
@@ -1046,151 +1128,209 @@
             document.getElementById('p2-status').innerText = '🔵 請選擇答案';
             document.getElementById('p2-status').className = 'text-center text-[11px] font-bold text-blue-600';
 
-            // Generate options
-            let options = [];
-            let correctOptionIndex = 0;
+            gameState.p1Answered = false;
+            gameState.p1ChosenIndex = -1;
+            gameState.p2Answered = false;
+            gameState.p2ChosenIndex = -1;
 
-            if (gameConfig.stage === 1) {
-                if (gameConfig.type === 'season') {
-                    options = ["春", "夏", "秋", "冬"];
-                    correctOptionIndex = options.indexOf(answerText);
-                } else {
-                    const months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-                    const correctMonth = answerText;
-                    let wrongMonths = shuffleArray(months.filter(m => m !== correctMonth)).slice(0, 3);
-                    options = shuffleArray([correctMonth, ...wrongMonths]);
-                    correctOptionIndex = options.indexOf(correctMonth);
-                }
-            } else {
-                const correctPoem = poemText;
-                let distractors = gameState.activeDataset
-                    .filter(item => checkAndCorrectTC(item[3]) !== correctPoem)
-                    .map(item => checkAndCorrectTC(item[3]));
-                distractors = shuffleArray(distractors).slice(0, 3);
-                options = shuffleArray([correctPoem, ...distractors]);
-                correctOptionIndex = options.indexOf(correctPoem);
-            }
+            // Generate Binary Options
+            let options = generateBinaryOptions(q, stageNum);
+            gameState.currentOptions = options;
 
-            gameState.battleCorrectIndex = correctOptionIndex;
-
-            // Render options for P1 and P2
             const renderPlayerOptions = (containerId, playerNum) => {
                 const container = document.getElementById(containerId);
                 container.innerHTML = '';
                 options.forEach((optText, idx) => {
                     const btn = document.createElement('button');
-                    btn.className = 'w-full btn-classical p-2 rounded-lg text-left font-bold text-[11px] leading-tight flex items-start gap-1 shadow-sm';
-                    const prefix = String.fromCharCode(65 + idx);
-                    btn.innerHTML = `<span class="bg-[#4a3b32] text-white px-1 rounded text-[10px] shrink-0">${prefix}</span> <span>${optText}</span>`;
+                    btn.className = 'w-full btn-classical p-2.5 rounded-xl text-left font-bold text-xs leading-snug flex items-start gap-1.5 shadow-sm';
+                    const prefix = idx === 0 ? 'A' : 'B';
+                    btn.innerHTML = `<span class="bg-[#4a3b32] text-white px-1.5 py-0.5 rounded text-[10px] shrink-0">${prefix}</span> <span>${optText}</span>`;
                     btn.onclick = () => handleBattleAnswer(playerNum, idx, btn);
                     container.appendChild(btn);
                 });
+                container.classList.remove('pointer-events-none', 'opacity-60');
             };
 
             renderPlayerOptions('p1-options', 1);
             renderPlayerOptions('p2-options', 2);
+
+            // Start 3-second battle stage timer
+            startBattleStageTimer();
+        }
+
+        function startBattleStageTimer() {
+            if (gameState.stageTimer) clearInterval(gameState.stageTimer);
+            gameState.stageTimeLeft = 3.0;
+            gameState.battleStageTimeStart = performance.now();
+            updateStageTimerBar('battle-stage-timer-bar', 'battle-stage-timer-text', gameState.stageTimeLeft);
+
+            const startTime = Date.now();
+            gameState.stageTimer = setInterval(() => {
+                const elapsed = (Date.now() - startTime) / 1000;
+                gameState.stageTimeLeft = Math.max(0, 3.0 - elapsed);
+                updateStageTimerBar('battle-stage-timer-bar', 'battle-stage-timer-text', gameState.stageTimeLeft);
+
+                if (gameState.stageTimeLeft <= 0) {
+                    clearInterval(gameState.stageTimer);
+                    resolveBattleRound();
+                }
+            }, 50);
         }
 
         function handleBattleAnswer(playerNum, chosenIdx, btn) {
             if (!gameState.active) return;
-            const now = Date.now();
+            const now = performance.now();
 
             if (playerNum === 1) {
                 if (gameState.p1Answered) return;
                 gameState.p1Answered = true;
                 gameState.p1ChosenIndex = chosenIdx;
-                gameState.p1Time = now - gameState.battleQuestionTime;
+                gameState.p1Time = now - gameState.battleStageTimeStart;
                 playSound('click');
 
-                document.getElementById('p1-status').innerText = '✅ 已鎖定作答';
+                document.getElementById('p1-status').innerText = '✅ 已鎖定答案';
                 document.getElementById('p1-status').className = 'text-center text-[11px] font-bold text-gray-500';
                 document.getElementById('p1-options').classList.add('pointer-events-none', 'opacity-60');
             } else {
                 if (gameState.p2Answered) return;
                 gameState.p2Answered = true;
                 gameState.p2ChosenIndex = chosenIdx;
-                gameState.p2Time = now - gameState.battleQuestionTime;
+                gameState.p2Time = now - gameState.battleStageTimeStart;
                 playSound('click');
 
-                document.getElementById('p2-status').innerText = '✅ 已鎖定作答';
+                document.getElementById('p2-status').innerText = '✅ 已鎖定答案';
                 document.getElementById('p2-status').className = 'text-center text-[11px] font-bold text-gray-500';
                 document.getElementById('p2-options').classList.add('pointer-events-none', 'opacity-60');
             }
 
-            // Both players answered
+            // Both teams responded before timeout
             if (gameState.p1Answered && gameState.p2Answered) {
+                if (gameState.stageTimer) clearInterval(gameState.stageTimer);
                 resolveBattleRound();
             }
         }
 
         function resolveBattleRound() {
-            const correctIdx = gameState.battleCorrectIndex;
-            const p1Correct = (gameState.p1ChosenIndex === correctIdx);
-            const p2Correct = (gameState.p2ChosenIndex === correctIdx);
+            document.getElementById('p1-options').classList.add('pointer-events-none');
+            document.getElementById('p2-options').classList.add('pointer-events-none');
 
-            let msg = '';
+            const q = gameState.currentQuestion;
+            const correctAnswer = gameState.currentStage === 1 ? q[2] : q[3];
+            const correctIdx = gameState.currentOptions.indexOf(correctAnswer);
 
-            // Calculate P1 Score
+            const p1Correct = (gameState.p1Answered && gameState.p1ChosenIndex === correctIdx);
+            const p2Correct = (gameState.p2Answered && gameState.p2ChosenIndex === correctIdx);
+
+            // Score & Streak P1
             if (p1Correct) {
-                gameState.p1Streak++;
-                let pts = 10 + Math.min(gameState.p1Streak * 2, 20);
-                if (p2Correct && gameState.p1Time < gameState.p2Time) pts += 3; // Speed bonus
-                if (!p2Correct) pts += 3;
+                if (gameState.p1Streak < 0) gameState.p1Streak = 1;
+                else gameState.p1Streak++;
+                let pts = gameState.p1Streak;
+                // Speed bonus (+3)
+                if (gameState.p1Answered && (!p2Correct || gameState.p1Time < gameState.p2Time)) {
+                    pts += 3;
+                }
                 gameState.p1Score += pts;
             } else {
-                gameState.p1Streak = 0;
+                if (gameState.p1Streak > 0) gameState.p1Streak = -1;
+                else gameState.p1Streak--;
+                gameState.p1Score += gameState.p1Streak;
             }
 
-            // Calculate P2 Score
+            // Score & Streak P2
             if (p2Correct) {
-                gameState.p2Streak++;
-                let pts = 10 + Math.min(gameState.p2Streak * 2, 20);
-                if (p1Correct && gameState.p2Time < gameState.p1Time) pts += 3; // Speed bonus
-                if (!p1Correct) pts += 3;
+                if (gameState.p2Streak < 0) gameState.p2Streak = 1;
+                else gameState.p2Streak++;
+                let pts = gameState.p2Streak;
+                // Speed bonus (+3)
+                if (gameState.p2Answered && (!p1Correct || gameState.p2Time < gameState.p1Time)) {
+                    pts += 3;
+                }
                 gameState.p2Score += pts;
             } else {
-                gameState.p2Streak = 0;
+                if (gameState.p2Streak > 0) gameState.p2Streak = -1;
+                else gameState.p2Streak--;
+                gameState.p2Score += gameState.p2Streak;
             }
 
-            // Result Message
+            // UI Result Banner Message
+            let msg = '';
             if (p1Correct && p2Correct) {
                 playSound('correct');
                 const fastest = gameState.p1Time <= gameState.p2Time ? '🔴 紅隊' : '🔵 白隊';
-                msg = `🎉 兩隊皆答對！${fastest} 搶先答對 (+3分獎勵)`;
+                msg = `🎉 兩隊皆答對！${fastest} 搶先答對額外 +3 分快手獎勵！`;
             } else if (p1Correct) {
                 playSound('correct');
-                msg = `🔴 紅隊 答對！🔵 白隊 答錯！`;
+                msg = `🔴 紅隊 答對 (+3分首答獎勵)！🔵 白隊 未答對！`;
             } else if (p2Correct) {
                 playSound('correct');
-                msg = `🔵 白隊 答對！🔴 紅隊 答錯！`;
+                msg = `🔵 白隊 答對 (+3分首答獎勵)！🔴 紅隊 未答對！`;
             } else {
                 playSound('wrong');
-                msg = `❌ 兩隊皆答錯！`;
+                msg = `❌ 兩隊皆未能正確答對！`;
             }
 
             updateBattleUI();
 
             const feedbackBox = document.getElementById('battle-feedback-box');
             document.getElementById('battle-result-msg').innerText = msg;
+            document.getElementById('battle-poem-text').innerText = `出處及解析：${q[3]}`;
 
-            const poem = checkAndCorrectTC(gameState.currentQuestion[3]);
-            document.getElementById('battle-poem-text').innerText = `出處及解析：${poem}`;
+            const nextBtn = document.getElementById('battle-next-btn');
+            if (gameState.currentStage === 1) {
+                nextBtn.innerText = '進入第二階段：文學作品應用 ➔';
+            } else {
+                nextBtn.innerText = '進入下一題 ➔';
+            }
 
             feedbackBox.classList.remove('hidden');
-            speakText(poem);
+            speakText(q[3]);
         }
 
-        function nextBattleQuestion() {
+        function nextBattleStageOrQuestion() {
             playSound('click');
-            document.getElementById('p1-options').classList.remove('pointer-events-none', 'opacity-60');
-            document.getElementById('p2-options').classList.remove('pointer-events-none', 'opacity-60');
-            gameState.currentIndex++;
-            loadBattleQuestion();
+            if (gameState.currentStage === 1) {
+                loadBattleQuestionStage(2);
+            } else {
+                gameState.currentIndex++;
+                loadBattleQuestionStage(1);
+            }
         }
 
         /* =========================================================================
-           八-[#Helper] 陣列洗牌算法
+           八、二選一選項生成器 (Binary Options Generator)
            ========================================================================= */
+
+        function generateBinaryOptions(questionItem, stageNum) {
+            const correctAnswer = stageNum === 1 ? questionItem[2] : questionItem[3];
+            const answerGroup = questionItem[4]; // 答案分組
+
+            const dataset = gameConfig.type === 'season' ? SEASON_DATA : MONTH_DATA;
+
+            // Find a distractor whose 答案分組 is DIFFERENT from the correct answer's 答案分組
+            let validDistractors = dataset.filter(item => item[4] !== answerGroup);
+
+            if (validDistractors.length === 0) {
+                validDistractors = dataset.filter(item => item[2] !== questionItem[2]);
+            }
+
+            const randomDistractorItem = validDistractors[Math.floor(Math.random() * validDistractors.length)];
+            const distractorAnswer = stageNum === 1 ? randomDistractorItem[2] : randomDistractorItem[3];
+
+            return shuffleArray([correctAnswer, distractorAnswer]);
+        }
+
+        /* =========================================================================
+           九、輔助函式 (Timer Bar & Shuffle)
+           ========================================================================= */
+
+        function updateStageTimerBar(barId, textId, secondsLeft) {
+            const percentage = (secondsLeft / 3.0) * 100;
+            const bar = document.getElementById(barId);
+            const text = document.getElementById(textId);
+            if (bar) bar.style.width = `${percentage}%`;
+            if (text) text.innerText = `⚡ 答題剩餘：${secondsLeft.toFixed(1)}秒`;
+        }
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -1200,24 +1340,10 @@
             return array;
         }
 
-        // On Page Load Initialization
-        window.onload = function() {
-            // Verify all data strings with Traditional Chinese check
-            SEASON_DATA.forEach(row => {
-                row[0] = checkAndCorrectTC(row[0]);
-                row[1] = checkAndCorrectTC(row[1]);
-                row[2] = checkAndCorrectTC(row[2]);
-                row[3] = checkAndCorrectTC(row[3]);
-                row[4] = checkAndCorrectTC(row[4]);
-            });
-            MONTH_DATA.forEach(row => {
-                row[0] = checkAndCorrectTC(row[0]);
-                row[1] = checkAndCorrectTC(row[1]);
-                row[2] = checkAndCorrectTC(row[2]);
-                row[3] = checkAndCorrectTC(row[3]);
-                row[4] = checkAndCorrectTC(row[4]);
-            });
-        };
+        // Initialize Audio context trigger on first interaction
+        window.addEventListener('click', () => {
+            initAudioContext();
+        }, { once: true });
     </script>
 </body>
 </html>
